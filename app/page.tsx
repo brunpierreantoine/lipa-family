@@ -40,6 +40,7 @@ export default function Home() {
   const [length, setLength] = useState<StoryLength>("Short");
   const [keywords, setKeywords] = useState("");
   const [story, setStory] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const canGenerate = useMemo(() => {
     return kidName.trim().length > 0 || age.trim().length > 0 || keywords.trim().length > 0;
@@ -113,19 +114,36 @@ export default function Home() {
         </label>
 
         <button
-          onClick={() => setStory(buildMockStory({ kidName, age, style, length, keywords }))}
-          disabled={!canGenerate}
+          onClick={async () => {
+            setIsLoading(true);
+            setStory("Generating...");
+            try {
+              const res = await fetch("/api/story", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ kidName, age, style, length, keywords }),
+              });
+
+              const data = await res.json();
+              setStory(data.story ?? `Error: ${data.error ?? "Unknown error"}`);
+            } catch (e: any) {
+              setStory(`Error: ${e?.message ?? "Network error"}`);
+            } finally {
+              setIsLoading(false);
+            }
+          }}
+          disabled={!canGenerate || isLoading}
           style={{
             gridColumn: "1 / -1",
             padding: 12,
             borderRadius: 12,
             border: "none",
-            cursor: canGenerate ? "pointer" : "not-allowed",
+            cursor: canGenerate && !isLoading ? "pointer" : "not-allowed",
             fontSize: 16,
-            opacity: canGenerate ? 1 : 0.5,
+            opacity: canGenerate && !isLoading ? 1 : 0.5,
           }}
         >
-          Generate story
+          {isLoading ? "Generating..." : "Generate story"}
         </button>
       </div>
 
