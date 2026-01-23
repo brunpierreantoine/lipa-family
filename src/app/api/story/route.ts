@@ -69,9 +69,13 @@ USER INPUTS:
 
 STRUCTURE:
 - Provide a title in French on the first line.
-- Then split into 3 to 6 short chapters with headings like: "Chapitre 1 — ..."
-- Keep chapters short, vivid, and easy to read aloud.
-- End with a calm “bonne nuit” feeling.
+- Use a number of chapters adapted to the length:
+  - 3 minutes → 2 to 3 short chapters
+  - 5 minutes → 3 to 4 chapters
+  - 10 minutes → 5 to 6 chapters
+- Each chapter must start with a heading like: "Chapitre 1 — ..."
+- Chapters should be short, vivid, and easy to read aloud.
+- End with a calm, reassuring bedtime ending.
 
 SAFETY RULES:
 ${STORY_CONFIG.safetyRules}

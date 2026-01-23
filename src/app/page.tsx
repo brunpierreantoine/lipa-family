@@ -1,35 +1,80 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import styles from "./page.module.css";
 
 type StoryStyle = "Cozy" | "Funny" | "Adventure" | "Magical" | "Sci-Fi";
 type StoryMinutes = 3 | 5 | 10;
 
-function styleLabel(style: StoryStyle) {
-  switch (style) {
-    case "Cozy":
-      return "Doudou & réconfortant";
-    case "Funny":
-      return "Drôle";
-    case "Adventure":
-      return "Aventure";
-    case "Magical":
-      return "Magique";
-    case "Sci-Fi":
-      return "Science-fiction";
-    default:
-      return style;
+function parseStory(raw: string) {
+  const text = (raw || "").trim();
+  if (!text) return null;
+
+  const lines = text.split("\n");
+  const nonEmpty = lines.map((l) => l.trim()).filter(Boolean);
+  const title = nonEmpty[0] ?? "Une histoire du soir";
+
+  const chapters: { heading: string; paragraphs: string[] }[] = [];
+  let currentHeading = "";
+  let currentBody: string[] = [];
+
+  function pushCurrent() {
+    if (!currentHeading && currentBody.length === 0) return;
+    const joined = currentBody.join("\n").trim();
+    const paragraphs = joined
+      ? joined.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean)
+      : [];
+    chapters.push({ heading: currentHeading || "Chapitre", paragraphs });
   }
+
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) {
+      currentBody.push("");
+      continue;
+    }
+    if (/^chapitre\s+\d+/i.test(line)) {
+      pushCurrent();
+      currentHeading = line;
+      currentBody = [];
+      continue;
+    }
+    currentBody.push(line);
+  }
+  pushCurrent();
+
+  if (chapters.length === 0) {
+    const body = nonEmpty.slice(1).join("\n\n").trim();
+    return {
+      title,
+      chapters: [
+        {
+          heading: "Histoire",
+          paragraphs: body ? body.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean) : [],
+        },
+      ],
+    };
+  }
+
+  return { title, chapters };
 }
 
 export default function Home() {
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+
   const [minutes, setMinutes] = useState<StoryMinutes>(5);
   const [style, setStyle] = useState<StoryStyle>("Cozy");
   const [keywords, setKeywords] = useState("");
   const [moral, setMoral] = useState("");
 
-  const [story, setStory] = useState("");
+  const [rawStory, setRawStory] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+  }, [theme]);
+
+  const story = useMemo(() => parseStory(rawStory), [rawStory]);
 
   const canGenerate = useMemo(() => {
     return keywords.trim().length > 0 || moral.trim().length > 0;
@@ -37,7 +82,7 @@ export default function Home() {
 
   async function generateStory() {
     setIsLoading(true);
-    setStory("Je fabrique l’histoire… ✨");
+    setRawStory("Je fabrique l’histoire… ✨");
 
     try {
       const res = await fetch("/api/story", {
@@ -49,8 +94,8 @@ export default function Home() {
       const contentType = res.headers.get("content-type") || "";
       if (!contentType.includes("application/json")) {
         const text = await res.text();
-        setStory(
-          `Oups… L’API n’a pas renvoyé du JSON.\n\nStatut: ${res.status}\n\nDébut de la réponse:\n${text.slice(
+        setRawStory(
+          `Oups… L’API n’a pas renvoyé du JSON.\n\nStatut: ${res.status}\n\nDébut:\n${text.slice(
             0,
             300
           )}`
@@ -59,9 +104,9 @@ export default function Home() {
       }
 
       const data: { story?: string; error?: string } = await res.json();
-      setStory(data.story ?? `Oups… ${data.error ?? "Erreur inconnue"}`);
+      setRawStory(data.story ?? `Oups… ${data.error ?? "Erreur inconnue"}`);
     } catch (e: any) {
-      setStory(`Oups… ${e?.message ?? "Erreur réseau"}`);
+      setRawStory(`Oups… ${e?.message ?? "Erreur réseau"}`);
     } finally {
       setIsLoading(false);
     }
@@ -70,132 +115,118 @@ export default function Home() {
   function clearAll() {
     setKeywords("");
     setMoral("");
-    setStory("");
+    setRawStory("");
     setMinutes(5);
     setStyle("Cozy");
   }
 
+  const isDisabled = !canGenerate || isLoading;
+
   return (
-    <main style={{ maxWidth: 860, margin: "0 auto", padding: 24, fontFamily: "system-ui" }}>
-      <h1 style={{ fontSize: 30, marginBottom: 8 }}>Générateur d’histoires du soir</h1>
-      <p style={{ marginTop: 0, opacity: 0.85, lineHeight: 1.4 }}>
-        On choisit ensemble une durée, un style, quelques mots rigolos… et une petite leçon à apprendre.
-        Puis on clique et hop — une histoire en français ✨
-      </p>
-
-      <div style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr", marginTop: 18 }}>
-        <label style={{ display: "grid", gap: 6 }}>
-          Durée
-          <select
-            value={minutes}
-            onChange={(e) => setMinutes(Number(e.target.value) as StoryMinutes)}
-            style={{ padding: 10, borderRadius: 10, border: "1px solid #ccc" }}
-          >
-            <option value={3}>3 minutes (petite histoire)</option>
-            <option value={5}>5 minutes (histoire moyenne)</option>
-            <option value={10}>10 minutes (grande histoire)</option>
-          </select>
-        </label>
-
-        <label style={{ display: "grid", gap: 6 }}>
-          Style
-          <select
-            value={style}
-            onChange={(e) => setStyle(e.target.value as StoryStyle)}
-            style={{ padding: 10, borderRadius: 10, border: "1px solid #ccc" }}
-          >
-            <option value="Cozy">{styleLabel("Cozy")}</option>
-            <option value="Funny">{styleLabel("Funny")}</option>
-            <option value="Adventure">{styleLabel("Adventure")}</option>
-            <option value="Magical">{styleLabel("Magical")}</option>
-            <option value="Sci-Fi">{styleLabel("Sci-Fi")}</option>
-          </select>
-        </label>
-
-        <label style={{ display: "grid", gap: 6, gridColumn: "1 / -1" }}>
-          Mots-clés (séparés par des virgules)
-          <input
-            value={keywords}
-            onChange={(e) => setKeywords(e.target.value)}
-            placeholder="ex : dragon, lune, cookies, dinosaure…"
-            style={{ padding: 10, borderRadius: 10, border: "1px solid #ccc" }}
-          />
-          <span style={{ fontSize: 12, opacity: 0.7 }}>
-            Astuce : choisis 2 à 5 mots, ça marche très bien.
-          </span>
-        </label>
-
-        <label style={{ display: "grid", gap: 6, gridColumn: "1 / -1" }}>
-          La morale (ce qu’on veut apprendre)
-          <input
-            value={moral}
-            onChange={(e) => setMoral(e.target.value)}
-            placeholder="ex : partager, être gentil, dire la vérité, être courageux…"
-            style={{ padding: 10, borderRadius: 10, border: "1px solid #ccc" }}
-          />
-          <span style={{ fontSize: 12, opacity: 0.7 }}>
-            Exemple : “être patient quand on attend” ou “aider un ami”.
-          </span>
-        </label>
+    <main style={{ maxWidth: 900, margin: "0 auto", padding: 24 }}>
+      {/* Header */}
+      <div className={styles.headerRow}>
+        <div className={styles.headerLeft}>
+          <h1 style={{ fontSize: 34, marginBottom: 0 }}>Histoires du soir</h1>
+          <div className={styles.subtitle}>
+            On choisit ensemble une durée, un style, quelques mots rigolos… et une petite leçon à
+            apprendre. Puis on lit tranquillement 📖✨
+          </div>
+        </div>
 
         <button
-          onClick={generateStory}
-          disabled={!canGenerate || isLoading}
-          style={{
-            gridColumn: "1 / -1",
-            padding: 12,
-            borderRadius: 12,
-            border: "none",
-            cursor: canGenerate && !isLoading ? "pointer" : "not-allowed",
-            fontSize: 16,
-            opacity: canGenerate && !isLoading ? 1 : 0.5,
-          }}
+          className={styles.themeToggle}
+          onClick={() => setTheme((t) => (t === "light" ? "dark" : "light"))}
+          aria-label="Basculer le thème"
         >
-          {isLoading ? "Je crée l’histoire…" : "Créer une histoire ✨"}
-        </button>
-
-        <button
-          onClick={clearAll}
-          disabled={isLoading}
-          style={{
-            gridColumn: "1 / -1",
-            padding: 10,
-            borderRadius: 12,
-            border: "1px solid #ccc",
-            background: "transparent",
-            cursor: !isLoading ? "pointer" : "not-allowed",
-            fontSize: 14,
-            opacity: !isLoading ? 1 : 0.6,
-          }}
-        >
-          Réinitialiser
+          {theme === "light" ? "🌙 Mode nuit" : "☀️ Mode jour"}
         </button>
       </div>
 
-      <div style={{ marginTop: 18 }}>
-        <label style={{ display: "grid", gap: 6 }}>
-          Ton histoire
-          <textarea
-            value={story}
-            readOnly
-            placeholder="L’histoire apparaîtra ici…"
-            rows={16}
-            style={{
-              padding: 12,
-              borderRadius: 12,
-              border: "1px solid #ccc",
-              width: "100%",
-              lineHeight: 1.6,
-              fontSize: 15,
-            }}
-          />
-        </label>
+      {/* Controls */}
+      <div className={styles.controlsCard}>
+        <div className={styles.controlsGrid}>
+          <label className={styles.label}>
+            Durée
+            <select
+              value={minutes}
+              onChange={(e) => setMinutes(Number(e.target.value) as StoryMinutes)}
+              className={styles.field}
+            >
+              <option value={3}>3 minutes (petite histoire)</option>
+              <option value={5}>5 minutes (histoire moyenne)</option>
+              <option value={10}>10 minutes (grande histoire)</option>
+            </select>
+          </label>
 
-        <p style={{ fontSize: 12, opacity: 0.7, marginTop: 10, lineHeight: 1.4 }}>
-          Conseil : si tu veux une histoire plus drôle, mets un mot-clé rigolo (ex : “chaussette”)
-          et une morale simple (ex : “dire merci”).
-        </p>
+          <label className={styles.label}>
+            Style
+            <select
+              value={style}
+              onChange={(e) => setStyle(e.target.value as StoryStyle)}
+              className={styles.field}
+            >
+              <option value="Cozy">Doudou</option>
+              <option value="Funny">Drôle</option>
+              <option value="Adventure">Aventure</option>
+              <option value="Magical">Magique</option>
+              <option value="Sci-Fi">Science-fiction</option>
+            </select>
+          </label>
+
+          <label className={`${styles.label} ${styles.fullRow}`}>
+            Mots-clés (séparés par des virgules)
+            <input
+              value={keywords}
+              onChange={(e) => setKeywords(e.target.value)}
+              placeholder="ex : dragon, lune, cookies, dinosaure…"
+              className={styles.field}
+            />
+            <span className={styles.helper}>Astuce : 2 à 5 mots, c’est parfait.</span>
+          </label>
+
+          <label className={`${styles.label} ${styles.fullRow}`}>
+            La morale (ce qu’on veut apprendre)
+            <input
+              value={moral}
+              onChange={(e) => setMoral(e.target.value)}
+              placeholder="ex : partager, être gentil, dire la vérité…"
+              className={styles.field}
+            />
+            <span className={styles.helper}>Exemple : “être patient quand on attend”.</span>
+          </label>
+
+          <div className={styles.fullRow}>
+            <button className={styles.primaryButton} onClick={generateStory} disabled={isDisabled}>
+              {isLoading ? "Je crée l’histoire…" : "Créer une histoire ✨"}
+            </button>
+          </div>
+
+          <div className={styles.fullRow}>
+            <button className={styles.secondaryButton} onClick={clearAll} disabled={isLoading}>
+              Réinitialiser
+            </button>
+          </div>
+        </div>
       </div>
+
+      {/* Book output */}
+      {story && (
+        <article className={styles.bookCard}>
+          <h2 className={styles.storyTitle}>{story.title}</h2>
+
+          {story.chapters.map((ch, i) => (
+            <section key={i} style={{ marginTop: i === 0 ? 16 : 22 }}>
+              <h3 className={styles.chapterHeading}>{ch.heading}</h3>
+              {ch.paragraphs.map((p, idx) => (
+                <p key={idx} className={styles.paragraph}>
+                  {p}
+                </p>
+              ))}
+            </section>
+          ))}
+        </article>
+      )}
     </main>
   );
 }

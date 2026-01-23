@@ -1,0 +1,33 @@
+:root {
+    --bg-main: linear-gradient(180deg, #fff8e9, #ffffff);
+    --bg-card: #ffffff;
+    --bg-card-soft: rgba(255, 255, 255, 0.8);
+  
+    --text-main: #2f2a26;
+    --text-muted: rgba(47, 42, 38, 0.75);
+  
+    --border-soft: rgba(0, 0, 0, 0.12);
+  
+    --accent-1: #7c5cff;
+    --accent-2: #ff7ab6;
+  
+    --button-disabled-1: #d6d1ff;
+    --button-disabled-2: #f5c2db;
+  }
+  
+  html[data-theme="dark"] {
+    --bg-main: linear-gradient(180deg, #121212, #1b1b1b);
+    --bg-card: #1f1f1f;
+    --bg-card-soft: rgba(30, 30, 30, 0.9);
+  
+    --text-main: #f2f2f2;
+    --text-muted: rgba(242, 242, 242, 0.7);
+  
+    --border-soft: rgba(255, 255, 255, 0.15);
+  
+    --accent-1: #9f8cff;
+    --accent-2: #ff9ad5;
+  
+    --button-disabled-1: #3a3555;
+    --button-disabled-2: #4b2d3f;
+  }
