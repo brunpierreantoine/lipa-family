@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
+import { STORY_CONFIG } from "@/lib/storyConfig";
 
 export const runtime = "nodejs";
 
@@ -8,12 +9,19 @@ const client = new OpenAI({
 });
 
 type StoryStyle = "Cozy" | "Funny" | "Adventure" | "Magical" | "Sci-Fi";
-type StoryLength = "Short" | "Medium" | "Long";
+type StoryMinutes = 3 | 5 | 10;
 
-function lengthToTargetWords(length: StoryLength) {
-  if (length === "Short") return 250;
-  if (length === "Medium") return 450;
-  return 700;
+function coerceMinutes(value: unknown): StoryMinutes {
+  const n = Number(value);
+  if (n === 3 || n === 5 || n === 10) return n;
+  return 5; // sensible default
+}
+
+function minutesToTargetWords(minutes: StoryMinutes) {
+  // Rough rule: bedtime reading pace ~130–160 wpm; target a bit lower for younger kids
+  if (minutes === 3) return 380;
+  if (minutes === 5) return 650;
+  return 1300;
 }
 
 export async function POST(req: Request) {
@@ -27,10 +35,9 @@ export async function POST(req: Request) {
 
     const body = await req.json();
 
-    const kidName = String(body.kidName ?? "").trim();
-    const age = String(body.age ?? "").trim();
+    const minutes = coerceMinutes(body.minutes);
     const style = String(body.style ?? "Cozy") as StoryStyle;
-    const length = String(body.length ?? "Short") as StoryLength;
+    const moral = String(body.moral ?? "").trim();
     const keywordsRaw = String(body.keywords ?? "");
 
     const keywords = keywordsRaw
@@ -39,27 +46,39 @@ export async function POST(req: Request) {
       .filter(Boolean)
       .slice(0, 10);
 
-    const targetWords = lengthToTargetWords(length);
+    const targetWords = minutesToTargetWords(minutes);
 
     const prompt = `
-Write a bedtime story for a child.
+You are a creative bedtime-story writer.
 
-Child:
-- Name: ${kidName || "the child"}
-- Age: ${age || "young"}
+LANGUAGE:
+- Write the entire story in French.
 
-Story requirements:
+AUDIENCE & CONTEXT:
+${STORY_CONFIG.familyContext}
+
+USER INPUTS:
 - Style: ${style}
-- Approx length: ${targetWords} words
-- Include these keywords naturally (if provided): ${keywords.length ? keywords.join(", ") : "none"}
+- Length: about ${minutes} minutes (~${targetWords} words)
+- Moral / lesson to teach: ${
+      moral || "a gentle positive lesson (kindness, sharing, courage, gratitude)"
+    }
+- Keywords to include naturally (if provided): ${
+      keywords.length ? keywords.join(", ") : "none"
+    }
 
-Safety + format constraints:
-- Text only (no markdown headings).
-- Warm, playful, reassuring.
-- No scary violence, no gore, no romance, no adult themes.
-- Keep vocabulary appropriate for the age.
-- End with a gentle, sleepy ending.
-Return ONLY the story text.
+STRUCTURE:
+- Provide a title in French on the first line.
+- Then split into 3 to 6 short chapters with headings like: "Chapitre 1 — ..."
+- Keep chapters short, vivid, and easy to read aloud.
+- End with a calm “bonne nuit” feeling.
+
+SAFETY RULES:
+${STORY_CONFIG.safetyRules}
+
+FORMAT:
+- Text only.
+- Return ONLY the story text (no extra commentary).
 `.trim();
 
     const result = await client.responses.create({
