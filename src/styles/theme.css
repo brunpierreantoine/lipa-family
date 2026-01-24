@@ -1,11 +1,6 @@
 /* Light theme (default) */
 :root[data-theme="light"] {
-  --bg-main: linear-gradient(
-    180deg,
-    #faedd2 0%,
-    #fdf4e6 55%,
-    #ffffff 100%
-  );
+  --bg-main: #ede8e0;
 
   --bg-card: #ffffff;
   --bg-card-soft: rgba(255, 255, 255, 0.85);
@@ -15,8 +10,8 @@
 
   --border-soft: rgba(0, 0, 0, 0.12);
 
-  --accent-1: #7c5cff;
-  --accent-2: #ff7ab6;
+  --accent-1: #6f5be3;
+  --accent-2: #ff9ad5;
 
   --button-disabled-1: #cfc9ff;
   --button-disabled-2: #ffd1e6;
@@ -24,12 +19,7 @@
 
 /* Dark theme */
 :root[data-theme="dark"] {
-  --bg-main: linear-gradient(
-    180deg,
-    #121212 0%,
-    #0e0e0e 60%,
-    #0a0a0a 100%
-  );
+  --bg-main: #121212;
 
   --bg-card: #1c1c1c;
   --bg-card-soft: rgba(28, 28, 28, 0.85);

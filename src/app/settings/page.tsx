@@ -53,22 +53,26 @@ export default function SettingsPage() {
 
       {/* Content */}
       <div className="cardSoft contentWrapper">
-        <label className="label">
-          Profil de famille (modifiable)
-          <textarea
-            className="field textarea"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder={DEFAULT_FAMILY_PROFILE}
-            rows={8}
-          />
-        </label>
+        <div className="controlsGrid">
+          <label className="label fullRow">
+            Profil de famille (modifiable)
+            <textarea
+              className="field textarea"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder={DEFAULT_FAMILY_PROFILE}
+              rows={8}
+            />
+          </label>
 
-        <button className="btn btnPrimary" onClick={save}>
-          Enregistrer
-        </button>
+          <div className="fullRow">
+            <button className="btn btnPrimary" onClick={save}>
+              Enregistrer
+            </button>
+          </div>
 
-        {saved && <div className={styles.saved}>✅ Enregistré</div>}
+          {saved && <div className={`fullRow ${styles.saved}`}>✅ Enregistré</div>}
+        </div>
       </div>
     </main>
   );

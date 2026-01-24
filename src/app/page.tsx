@@ -14,51 +14,83 @@ function parseStory(raw: string) {
 
   const lines = text.split("\n");
   const nonEmpty = lines.map((l) => l.trim()).filter(Boolean);
+
   const title = nonEmpty[0] ?? "Une histoire du soir";
 
   const chapters: { heading: string; paragraphs: string[] }[] = [];
+
   let currentHeading = "";
   let currentBody: string[] = [];
 
+  // Anything written before the first "Chapitre X" goes here
+  const introLines: string[] = [];
+
+  function bodyToParagraphs(bodyLines: string[]) {
+    const joined = bodyLines.join("\n").trim();
+    if (!joined) return [];
+    return joined
+      .split(/\n\s*\n/)
+      .map((p) => p.trim())
+      .filter(Boolean);
+  }
+
   function pushCurrent() {
-    if (!currentHeading && currentBody.length === 0) return;
-    const joined = currentBody.join("\n").trim();
-    const paragraphs = joined
-      ? joined.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean)
-      : [];
-    chapters.push({ heading: currentHeading || "Chapitre", paragraphs });
+    const paragraphs = bodyToParagraphs(currentBody);
+    if (!currentHeading || paragraphs.length === 0) return;
+    chapters.push({ heading: currentHeading, paragraphs });
   }
 
   for (let i = 1; i < lines.length; i++) {
     const line = lines[i].trim();
+
     if (!line) {
-      currentBody.push("");
+      // Keep paragraph breaks, but route them to intro or current chapter body
+      if (!currentHeading) introLines.push("");
+      else currentBody.push("");
       continue;
     }
+
     if (/^chapitre\s+\d+/i.test(line)) {
+      // We are starting a new chapter
+      // First, close previous chapter if any
       pushCurrent();
+
       currentHeading = line;
       currentBody = [];
       continue;
     }
-    currentBody.push(line);
+
+    // Normal text line
+    if (!currentHeading) introLines.push(line);
+    else currentBody.push(line);
   }
+
+  // Push last chapter
   pushCurrent();
 
-  if (chapters.length === 0) {
-    const body = nonEmpty.slice(1).join("\n\n").trim();
-    return {
-      title,
-      chapters: [
-        {
-          heading: "Histoire",
-          paragraphs: body ? body.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean) : [],
-        },
-      ],
-    };
+  // If we have chapters, merge intro into the first chapter (so no fake "Chapitre")
+  if (chapters.length > 0) {
+    const introParagraphs = bodyToParagraphs(introLines);
+    if (introParagraphs.length > 0) {
+      chapters[0] = {
+        ...chapters[0],
+        paragraphs: [...introParagraphs, ...chapters[0].paragraphs],
+      };
+    }
+    return { title, chapters };
   }
 
-  return { title, chapters };
+  // If the model didn’t produce any chapters at all, fallback: single section "Histoire"
+  const body = nonEmpty.slice(1).join("\n\n").trim();
+  return {
+    title,
+    chapters: [
+      {
+        heading: "Histoire",
+        paragraphs: body ? body.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean) : [],
+      },
+    ],
+  };
 }
 
 export default function Home() {
@@ -95,7 +127,10 @@ export default function Home() {
     }
   }, []);
 
-  const story = useMemo(() => parseStory(rawStory), [rawStory]);
+  const story = useMemo(() => {
+    if (isLoading) return null;
+    return parseStory(rawStory);
+  }, [rawStory, isLoading]);
 
   const canGenerate = useMemo(() => {
     return keywords.trim().length > 0 || moral.trim().length > 0;
@@ -173,7 +208,7 @@ export default function Home() {
 
       {/* Controls */}
       <div className="cardSoft contentWrapper">
-        <div className={styles.controlsGrid}>
+        <div className="controlsGrid">
           <label className="label">
             Durée
             <select
@@ -202,7 +237,7 @@ export default function Home() {
             </select>
           </label>
 
-          <label className={`label ${styles.fullRow}`}>
+          <label className="label fullRow">
             Mots-clés (séparés par des virgules)
             <input
               value={keywords}
@@ -213,7 +248,7 @@ export default function Home() {
             <span className={styles.helper}>Astuce : 2 à 5 mots, c’est parfait.</span>
           </label>
 
-          <label className={`label ${styles.fullRow}`}>
+          <label className="label fullRow">
             La morale (ce qu'on veut apprendre)
             <input
               value={moral}
@@ -224,13 +259,13 @@ export default function Home() {
             <span className={styles.helper}>Exemple : “être patient quand on attend”.</span>
           </label>
 
-          <div className={styles.fullRow}>
+          <div className="fullRow">
             <button className="btn btnPrimary" onClick={generateStory} disabled={isDisabled}>
               {isLoading ? "Je crée l’histoire…" : "Créer une histoire ✨"}
             </button>
           </div>
 
-          <div className={styles.fullRow}>
+          <div className="fullRow">
             <button className="btn" onClick={clearAll} disabled={isLoading}>
               Réinitialiser
             </button>
