@@ -1,49 +1,8 @@
-.headerRow {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-}
+/* ---------- Controls ---------- */
 
-.headerLeft {
-  min-width: 0; /* prevents overflow on small screens */
-}
-
-.subtitle {
-  margin-top: 6px;
-  opacity: 0.9;
-  line-height: 1.4;
-  color: var(--text-muted);
-}
-
-.themeToggle {
-  flex-shrink: 0;
-  margin-left: 16px; /* gives breathing room from title */
-  border: 1px solid var(--border-soft);
-  background: var(--bg-card);
-  color: var(--text-main);
-  border-radius: 14px;
-  padding: 10px 12px;
-  cursor: pointer;
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.06);
-  font-size: 16px;
-}
-
-.controlsCard {
-  display: grid;
-  gap: 12px;
-  margin-top: 18px;
-  padding: 16px;
-  border-radius: 18px;
-  background: var(--bg-card-soft);
-  border: 1px solid var(--border-soft);
-  backdrop-filter: blur(6px);
-}
-
-/* Responsive grid: 2 columns when there's room, otherwise 1 column */
 .controlsGrid {
   display: grid;
-  gap: 12px;
+  gap: 16px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
@@ -51,11 +10,9 @@
   grid-column: 1 / -1;
 }
 
-.label {
-  display: grid;
-  gap: 6px;
-  color: var(--text-main);
-  font-size: 14px;
+.fullRow:has(button) {
+  display: flex;
+  justify-content: center;
 }
 
 .helper {
@@ -65,60 +22,8 @@
   color: var(--text-muted);
 }
 
-/* Critical: prevent overflow */
-.field {
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
+/* ---------- Story (book layout) ---------- */
 
-  padding: 10px;
-  border-radius: 12px;
-  border: 1px solid var(--border-soft);
-  background: var(--bg-card);
-  color: var(--text-main);
-  outline: none;
-}
-
-.primaryButton {
-  width: 100%;
-  box-sizing: border-box;
-
-  padding: 14px;
-  border-radius: 14px;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 800;
-  color: var(--text-main);
-  background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
-}
-
-.primaryButton:disabled {
-  cursor: not-allowed;
-  background: linear-gradient(90deg, var(--button-disabled-1), var(--button-disabled-2));
-  box-shadow: none;
-}
-
-.secondaryButton {
-  width: 100%;
-  box-sizing: border-box;
-
-  padding: 10px;
-  border-radius: 14px;
-  border: 1px solid var(--border-soft);
-  background: transparent;
-  cursor: pointer;
-  font-size: 14px;
-  color: var(--text-main);
-}
-
-.secondaryButton:disabled {
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-
-/* Desktop/tablet book frame */
 .bookCard {
   margin-top: 22px;
   padding: 22px;
@@ -150,35 +55,25 @@
 }
 
 /* ---------- Mobile overrides ---------- */
+
 @media (max-width: 640px) {
-  /* Layout tweaks */
   .controlsGrid {
     grid-template-columns: 1fr;
   }
 
-  .headerRow {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .themeToggle {
-    margin-left: 0;
-  }
-
-  /* Make story readable edge-to-edge on mobile */
+  /* Edge-to-edge reading on mobile */
   .bookCard {
     margin-top: 16px;
-    padding: 0;            /* remove inner constraint */
-    border: none;          /* no frame */
+    padding: 0;
+    border: none;
     border-radius: 0;
     box-shadow: none;
-    background: transparent; /* blend with page */
+    background: transparent;
   }
 
-  /* Add small breathing room without narrowing too much */
   .storyTitle {
     padding: 0 10px;
-    font-size: 30px; /* slightly smaller for mobile */
+    font-size: 30px;
   }
 
   .chapterHeading {
@@ -187,7 +82,7 @@
 
   .paragraph {
     padding: 0 10px;
-    font-size: 17px; /* slightly bigger for read-aloud comfort */
+    font-size: 17px;
     line-height: 1.8;
   }
 }

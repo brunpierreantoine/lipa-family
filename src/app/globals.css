@@ -6,8 +6,11 @@ html,
 body {
   margin: 0;
   padding: 0;
-  min-height: 100%;
+  height: 100%;
+  min-height: 100vh;
   background: var(--bg-main);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   color: var(--text-main);
   font-family: "Comic Sans MS", "SF Pro Rounded", "Avenir Next",
     "Trebuchet MS", system-ui;
@@ -17,4 +20,149 @@ body {
 * {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* ---------- Shared UI primitives (used across pages) ---------- */
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 18px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+}
+
+.cardSoft {
+  background: var(--bg-card-soft);
+  border: 1px solid var(--border-soft);
+  border-radius: 18px;
+  backdrop-filter: blur(6px);
+}
+
+/* Inputs: input/select/textarea */
+.field {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border-soft);
+  background: var(--bg-card);
+  color: var(--text-main);
+  outline: none;
+}
+
+.textarea {
+  padding: 12px;
+  border-radius: 14px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+/* Buttons / links that look like buttons */
+.btn {
+  border: 1px solid var(--border-soft);
+  background: var(--bg-card);
+  color: var(--text-main);
+  border-radius: 14px;
+  padding: 10px 12px;
+  cursor: pointer;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.06);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 16px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+  box-shadow: none;
+}
+
+.btnPrimary {
+  border: none;
+  font-weight: 800;
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+  width: 100%;
+  max-width: 400px;
+}
+
+.btnPrimary:disabled {
+  background: linear-gradient(90deg, var(--button-disabled-1), var(--button-disabled-2));
+  box-shadow: none;
+}
+
+/* ---------- Shared header layout ---------- */
+
+.headerRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.headerLeft {
+  min-width: 0;
+}
+
+.headerActions {
+  display: flex;
+  gap: 10px;
+}
+
+/* ---------- Shared typography ---------- */
+
+.pageTitle {
+  font-size: 34px;
+  margin: 0;
+  color: var(--text-main);
+}
+
+.subtitle {
+  margin-top: 6px;
+  opacity: 0.9;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+/* ---------- Shared form elements ---------- */
+
+.label {
+  display: grid;
+  gap: 6px;
+  font-size: 16px;
+  color: var(--text-main);
+}
+
+/* ---------- Shared content wrappers ---------- */
+
+.contentWrapper {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+  padding: 16px;
+}
+
+.contentWrapper .btnPrimary,
+.contentWrapper .btn {
+  width: 100%;
+  max-width: 400px;
+  justify-self: center;
+}
+
+@media (max-width: 640px) {
+  .headerRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }

@@ -39,6 +39,7 @@ export async function POST(req: Request) {
     const style = String(body.style ?? "Cozy") as StoryStyle;
     const moral = String(body.moral ?? "").trim();
     const keywordsRaw = String(body.keywords ?? "");
+    const familyProfile = String(body.familyProfile ?? "").trim();
 
     const keywords = keywordsRaw
       .split(",")
@@ -56,6 +57,9 @@ LANGUAGE:
 
 AUDIENCE & CONTEXT:
 ${STORY_CONFIG.familyContext}
+
+FAMILY PROFILE (USER-EDITABLE):
+${familyProfile || "Not provided."}
 
 USER INPUTS:
 - Style: ${style}

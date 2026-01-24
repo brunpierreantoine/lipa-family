@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import styles from "./page.module.css";
+import { DEFAULT_FAMILY_PROFILE, SETTINGS_STORAGE_KEY, THEME_STORAGE_KEY } from "@/lib/storyDefaults";
 
 type StoryStyle = "Cozy" | "Funny" | "Adventure" | "Magical" | "Sci-Fi";
 type StoryMinutes = 3 | 5 | 10;
@@ -66,13 +68,32 @@ export default function Home() {
   const [style, setStyle] = useState<StoryStyle>("Cozy");
   const [keywords, setKeywords] = useState("");
   const [moral, setMoral] = useState("");
+  const [familyProfile, setFamilyProfile] = useState(DEFAULT_FAMILY_PROFILE);
 
   const [rawStory, setRawStory] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // Load saved theme (once)
+  useEffect(() => {
+    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+    if (savedTheme === "light" || savedTheme === "dark") {
+      setTheme(savedTheme);
+    }
+  }, []);
+
+  // Theme sync
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
   }, [theme]);
+
+  // Load saved family profile (once)
+  useEffect(() => {
+    const saved = localStorage.getItem(SETTINGS_STORAGE_KEY);
+    if (saved && saved.trim().length > 0) {
+      setFamilyProfile(saved);
+    }
+  }, []);
 
   const story = useMemo(() => parseStory(rawStory), [rawStory]);
 
@@ -88,7 +109,7 @@ export default function Home() {
       const res = await fetch("/api/story", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ minutes, style, keywords, moral }),
+        body: JSON.stringify({ minutes, style, keywords, moral, familyProfile }),
       });
 
       const contentType = res.headers.get("content-type") || "";
@@ -123,35 +144,42 @@ export default function Home() {
   const isDisabled = !canGenerate || isLoading;
 
   return (
-    <main style={{ maxWidth: 900, margin: "0 auto", padding: 24 }}>
+    <main className="container">
       {/* Header */}
-      <div className={styles.headerRow}>
-        <div className={styles.headerLeft}>
-          <h1 style={{ fontSize: 34, marginBottom: 0 }}>Histoires du soir</h1>
-          <div className={styles.subtitle}>
+      <div className="headerRow">
+        <div className="headerLeft">
+          <h1 className="pageTitle">Histoires du soir</h1>
+          <div className="subtitle">
             On choisit ensemble une durée, un style, quelques mots rigolos… et une petite leçon à
             apprendre. Puis on lit tranquillement 📖✨
           </div>
         </div>
 
-        <button
-          className={styles.themeToggle}
-          onClick={() => setTheme((t) => (t === "light" ? "dark" : "light"))}
-          aria-label="Basculer le thème"
-        >
-          {theme === "light" ? "🌙 Mode nuit" : "☀️ Mode jour"}
-        </button>
+        <div className="headerActions">
+          <button
+            className="btn"
+            onClick={() => setTheme((t) => (t === "light" ? "dark" : "light"))}
+            aria-label="Basculer le thème"
+            title="Basculer le thème"
+          >
+            {theme === "light" ? "🌙 Mode nuit" : "☀️ Mode jour"}
+          </button>
+
+          <Link href="/settings" className="btn" aria-label="Réglages" title="Réglages">
+            ⚙️
+          </Link>
+        </div>
       </div>
 
       {/* Controls */}
-      <div className={styles.controlsCard}>
+      <div className="cardSoft contentWrapper">
         <div className={styles.controlsGrid}>
-          <label className={styles.label}>
+          <label className="label">
             Durée
             <select
               value={minutes}
               onChange={(e) => setMinutes(Number(e.target.value) as StoryMinutes)}
-              className={styles.field}
+              className="field"
             >
               <option value={3}>3 minutes (petite histoire)</option>
               <option value={5}>5 minutes (histoire moyenne)</option>
@@ -159,12 +187,12 @@ export default function Home() {
             </select>
           </label>
 
-          <label className={styles.label}>
+          <label className="label">
             Style
             <select
               value={style}
               onChange={(e) => setStyle(e.target.value as StoryStyle)}
-              className={styles.field}
+              className="field"
             >
               <option value="Cozy">Doudou</option>
               <option value="Funny">Drôle</option>
@@ -174,36 +202,36 @@ export default function Home() {
             </select>
           </label>
 
-          <label className={`${styles.label} ${styles.fullRow}`}>
+          <label className={`label ${styles.fullRow}`}>
             Mots-clés (séparés par des virgules)
             <input
               value={keywords}
               onChange={(e) => setKeywords(e.target.value)}
               placeholder="ex : dragon, lune, cookies, dinosaure…"
-              className={styles.field}
+              className="field"
             />
             <span className={styles.helper}>Astuce : 2 à 5 mots, c’est parfait.</span>
           </label>
 
-          <label className={`${styles.label} ${styles.fullRow}`}>
-            La morale (ce qu’on veut apprendre)
+          <label className={`label ${styles.fullRow}`}>
+            La morale (ce qu'on veut apprendre)
             <input
               value={moral}
               onChange={(e) => setMoral(e.target.value)}
               placeholder="ex : partager, être gentil, dire la vérité…"
-              className={styles.field}
+              className="field"
             />
             <span className={styles.helper}>Exemple : “être patient quand on attend”.</span>
           </label>
 
           <div className={styles.fullRow}>
-            <button className={styles.primaryButton} onClick={generateStory} disabled={isDisabled}>
+            <button className="btn btnPrimary" onClick={generateStory} disabled={isDisabled}>
               {isLoading ? "Je crée l’histoire…" : "Créer une histoire ✨"}
             </button>
           </div>
 
           <div className={styles.fullRow}>
-            <button className={styles.secondaryButton} onClick={clearAll} disabled={isLoading}>
+            <button className="btn" onClick={clearAll} disabled={isLoading}>
               Réinitialiser
             </button>
           </div>
