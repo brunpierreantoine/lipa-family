@@ -64,12 +64,10 @@ ${familyProfile || "Not provided."}
 USER INPUTS:
 - Style: ${style}
 - Length: about ${minutes} minutes (~${targetWords} words)
-- Moral / lesson to teach: ${
-      moral || "a gentle positive lesson (kindness, sharing, courage, gratitude)"
-    }
-- Keywords to include naturally (if provided): ${
-      keywords.length ? keywords.join(", ") : "none"
-    }
+- Moral / lesson to teach: ${moral || "a gentle positive lesson (kindness, sharing, courage, gratitude)"
+      }
+- Keywords to include naturally (if provided): ${keywords.length ? keywords.join(", ") : "none"
+      }
 
 STRUCTURE:
 - Provide a title in French on the first line.
@@ -103,9 +101,10 @@ FORMAT:
     }
 
     return NextResponse.json({ story });
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json(
-      { error: err?.message ?? "Unknown error" },
+      { error: message },
       { status: 500 }
     );
   }

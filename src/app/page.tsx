@@ -100,7 +100,12 @@ export default function Home() {
   const [style, setStyle] = useState<StoryStyle>("Cozy");
   const [keywords, setKeywords] = useState("");
   const [moral, setMoral] = useState("");
-  const [familyProfile, setFamilyProfile] = useState(DEFAULT_FAMILY_PROFILE);
+  const [familyProfile] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem(SETTINGS_STORAGE_KEY) || DEFAULT_FAMILY_PROFILE;
+    }
+    return DEFAULT_FAMILY_PROFILE;
+  });
 
   const [rawStory, setRawStory] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -119,13 +124,7 @@ export default function Home() {
     localStorage.setItem(THEME_STORAGE_KEY, theme);
   }, [theme]);
 
-  // Load saved family profile (once)
-  useEffect(() => {
-    const saved = localStorage.getItem(SETTINGS_STORAGE_KEY);
-    if (saved && saved.trim().length > 0) {
-      setFamilyProfile(saved);
-    }
-  }, []);
+  // Load saved family profile removed - now handled in lazy initializer to avoid cascading renders
 
   const story = useMemo(() => {
     if (isLoading) return null;
@@ -161,8 +160,9 @@ export default function Home() {
 
       const data: { story?: string; error?: string } = await res.json();
       setRawStory(data.story ?? `Oups… ${data.error ?? "Erreur inconnue"}`);
-    } catch (e: any) {
-      setRawStory(`Oups… ${e?.message ?? "Erreur réseau"}`);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "Erreur réseau";
+      setRawStory(`Oups… ${message}`);
     } finally {
       setIsLoading(false);
     }
@@ -249,7 +249,7 @@ export default function Home() {
           </label>
 
           <label className="label fullRow">
-            La morale (ce qu'on veut apprendre)
+            La morale (ce qu&apos;on veut apprendre)
             <input
               value={moral}
               onChange={(e) => setMoral(e.target.value)}
