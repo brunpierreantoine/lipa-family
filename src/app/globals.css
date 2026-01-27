@@ -22,12 +22,21 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Better focus states */
+:focus-visible {
+  outline: 2px solid var(--accent-1);
+  outline-offset: 2px;
+}
+
 /* ---------- Shared UI primitives (used across pages) ---------- */
 
 .container {
   max-width: 900px;
   margin: 0 auto;
   padding: 24px;
+  padding-left: max(24px, env(safe-area-inset-left));
+  padding-right: max(24px, env(safe-area-inset-right));
+  padding-bottom: max(24px, env(safe-area-inset-bottom));
 }
 
 .controlsGrid {
@@ -132,7 +141,13 @@ body {
 
 .headerActions {
   display: flex;
-  gap: 10px;
+  gap: 12px;
+}
+
+.headerActions .btn {
+  padding: 12px;
+  min-width: 44px;
+  min-height: 44px;
 }
 
 /* ---------- Shared typography ---------- */

@@ -240,6 +240,8 @@ export default function Home() {
           <label className="label fullRow">
             Mots-clés (séparés par des virgules)
             <input
+              name="keywords"
+              autoComplete="off"
               value={keywords}
               onChange={(e) => setKeywords(e.target.value)}
               placeholder="ex : dragon, lune, cookies, dinosaure…"
@@ -251,6 +253,8 @@ export default function Home() {
           <label className="label fullRow">
             La morale (ce qu&apos;on veut apprendre)
             <input
+              name="moral"
+              autoComplete="off"
               value={moral}
               onChange={(e) => setMoral(e.target.value)}
               placeholder="ex : partager, être gentil, dire la vérité…"

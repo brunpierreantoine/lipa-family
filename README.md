@@ -1,36 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Kids Story AI
 
-## Getting Started
+Kids Story AI is a personal Next.js application designed to generate safe, engaging bedtime stories for children using AI. Built with a focus on clean architecture and a family-oriented user experience, it aims to make bedtime a magical and stress-free part of the day through mobile-first design and thoughtful content filtering.
 
-First, run the development server:
+## Key Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **AI Story Generation**: Leverages OpenAI to create unique, age-appropriate bedtime stories.
+- **Family-Oriented**: Dedicated focus on safety and educational, wholesome content.
+- **Mobile-First UX**: Optimized for bedtime reading on phones and tablets.
+- **Personalized Settings**: Customize story parameters to fit your child's preferences.
+- **Clean Architecture**: Built with modern web standards for maintainability and performance.
+
+## Tech Stack
+
+- **Framework**: [Next.js 16](https://nextjs.org/) (App Router)
+- **Library**: [React 19](https://react.dev/)
+- **AI Integration**: [OpenAI API](https://openai.com/api/)
+- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+
+## Project Structure
+
+```text
+├── agents/             # Project-local IDE agents and configurations
+├── public/             # Static assets (images, fonts, slogans)
+├── src/
+│   ├── app/            # Next.js App Router (pages and API routes)
+│   ├── lib/            # Shared utilities and core logic
+│   └── styles/         # Global styles and theme variables
+└── README.md           # Project documentation
 ```
+
+## Local Development
+
+### Prerequisites
+
+- Node.js (Latest LTS recommended)
+- `npm`, `yarn`, `pnpm`, or `bun`
+
+### Installation
+
+1. Clone the repository:
+
+    ```bash
+    git clone https://github.com/pa/kids-story-ai.git
+    cd kids-story-ai
+    ```
+
+2. Install dependencies:
+
+    ```bash
+    npm install
+    ```
+
+3. Set up environment variables:
+    Create a `.env.local` file in the root directory and add the following:
+
+    ```bash
+    OPENAI_API_KEY=your_openai_api_key_here
+    ```
+
+    *(Note: Never commit your actual API keys to version control.)*
+
+4. Run the development server:
+
+    ```bash
+    npm run dev
+    ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deployment
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The project is optimized for deployment on the [Vercel Platform](https://vercel.com/new). When deploying, ensure the `OPENAI_API_KEY` is added to your project's Environment Variables in the Vercel dashboard.
 
-## Learn More
+## Status & Roadmap
 
-To learn more about Next.js, take a look at the following resources:
+- [x] Initial story generation MVP
+- [x] Mobile-responsive layout
+- [ ] User authentication for saving favorites
+- [ ] Multiple language support
+- [ ] Audio narration (TTS integration)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Why this structure works
 
-## Deploy on Vercel
+This README follows the **Crafting Effective READMEs** guidelines for a **Personal Project**:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Concise Description**: Immediately identifies the *what* and *why* for a developer audience.
+- **Tech Explanations**: Lists core technologies directly, justifying the modern stack choice.
+- **Minimalist Instructions**: Provides the shortest path to "it works" without unnecessary fluff.
+- **Structure Visualization**: A brief lookup table for the codebase helps new contributors (or future-you) navigate quickly.
+- **Safety First**: Clearly highlights environment variable requirements without exposing sensitive data.
