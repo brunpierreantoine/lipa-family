@@ -1,94 +1,51 @@
-# Lipa Family
+# Lipa Family | Magical Family Workspace 📖✨
 
-Lipa Family is a personal Next.js application designed to generate safe, engaging bedtime stories for children using AI. Built with a focus on clean architecture and a family-oriented user experience, it aims to make bedtime a magical and stress-free part of the day through mobile-first design and thoughtful content filtering.
+Lipa Family is a modern platform designed to transform the bedtime ritual. It allows parents to generate personalized, safe, and engaging stories for their children using an AI specifically configured for their family context.
 
-## Key Features
+## 🚀 Product Vision
 
-- **AI Story Generation**: Leverages OpenAI to create unique, age-appropriate bedtime stories.
-- **Family-Oriented**: Dedicated focus on safety and educational, wholesome content.
-- **Mobile-First UX**: Optimized for bedtime reading on phones and tablets.
-- **Personalized Settings**: Customize story parameters to fit your child's preferences.
-- **Clean Architecture**: Built with modern web standards for maintainability and performance.
+* **Total Security**: Google OAuth authentication with a restricted allow-list and Middleware-level session enforcement.
+* **Family Context**: Shared family profiles allow the AI to learn preferences, names, and values for deeply personal stories.
+* **"Instant" Performance**: Optimized SSR architecture with parallel data fetching to eliminate perceptible loading times.
+* **Premium Aesthetics**: A custom design system built with dynamic light/dark themes and a focus on mobile-first readability.
 
-## Tech Stack
+## 🛠 Tech Stack
 
-- **Framework**: [Next.js 16](https://nextjs.org/) (App Router)
-- **Library**: [React 19](https://react.dev/)
-- **AI Integration**: [OpenAI API](https://openai.com/api/)
-- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
-- **Language**: [TypeScript](https://www.typescriptlang.org/)
+* **Framework**: [Next.js 16.1](https://nextjs.org/) (App Router, Server Components)
+* **Library**: [React 19](https://react.dev/)
+* **Database & Auth**: [Supabase](https://supabase.com/) (PostgreSQL, RLS policies, SSR Auth)
+* **AI**: OpenAI (Synchronized prompt engineering for child-safe content)
+* **Styling**: Vanilla CSS 3 + [Tailwind CSS 4](https://tailwindcss.com/)
+* **Language**: TypeScript
 
-## Project Structure
+## 📂 Architecture
 
-```text
-├── agents/             # Project-local IDE agents and configurations
-├── public/             # Static assets (images, fonts, slogans)
-├── src/
-│   ├── app/            # Next.js App Router (pages and API routes)
-│   ├── lib/            # Shared utilities and core logic
-│   └── styles/         # Global styles and theme variables
-└── README.md           # Project documentation
-```
+`agents/` — Specialized AI agent instructions for Architect, Backend, and Frontend roles.
+`supabase/` — Secure SQL migrations and declarative Row Level Security (RLS).
+`src/lib/supabase/` — Unified SSR-safe client initialization (Server, Client, Middleware).
+`src/app/` — Performance-optimized routes with consolidated auth gates.
 
-## Local Development
+## ⚙️ Local Setup
 
-### Prerequisites
-
-- Node.js (Latest LTS recommended)
-- `npm`, `yarn`, `pnpm`, or `bun`
-
-### Installation
-
-1. Clone the repository:
+1. **Installation**: `npm install`
+2. **Environment Variables** (`.env.local`):
 
     ```bash
-    git clone https://github.com/pa/lipa-family.git
-    cd lipa-family
+    NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+    OPENAI_API_KEY=your_openai_key
     ```
 
-2. Install dependencies:
+3. **Launch**: `npm run dev`
 
-    ```bash
-    npm install
-    ```
+## 📊 Status & Roadmap
 
-3. Set up environment variables:
-    Create a `.env.local` file in the root directory and add the following:
-
-    ```bash
-    OPENAI_API_KEY=your_openai_api_key_here
-    ```
-
-    *(Note: Never commit your actual API keys to version control.)*
-
-4. Run the development server:
-
-    ```bash
-    npm run dev
-    ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-## Deployment
-
-The project is optimized for deployment on the [Vercel Platform](https://vercel.com/new). When deploying, ensure the `OPENAI_API_KEY` is added to your project's Environment Variables in the Vercel dashboard.
-
-## Status & Roadmap
-
-- [x] Initial story generation MVP
-- [x] Mobile-responsive layout
-- [ ] User authentication for saving favorites
-- [ ] Multiple language support
-- [ ] Audio narration (TTS integration)
+* [x] Initial story generation MVP
+* [x] Mobile-responsive layout
+* [x] Secure Family Workspace (Auth & Onboarding)
+* [ ] User authentication for saving favorites
+* [ ] Multiple language support
+* [ ] Audio narration (TTS integration)
 
 ---
-
-## Why this structure works
-
-This README follows the **Crafting Effective READMEs** guidelines for a **Personal Project**:
-
-- **Concise Description**: Immediately identifies the *what* and *why* for a developer audience.
-- **Tech Explanations**: Lists core technologies directly, justifying the modern stack choice.
-- **Minimalist Instructions**: Provides the shortest path to "it works" without unnecessary fluff.
-- **Structure Visualization**: A brief lookup table for the codebase helps new contributors (or future-you) navigate quickly.
-- **Safety First**: Clearly highlights environment variable requirements without exposing sensitive data.
+*Developed with passion for children's joy and parents' peace of mind.*

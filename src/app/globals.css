@@ -407,3 +407,17 @@ select.field {
     line-height: 1.8;
   }
 }
+
+.backLink {
+  display: inline-block;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: var(--accent-1);
+  text-decoration: none;
+  font-weight: 500;
+  transition: transform 0.2s ease;
+}
+
+.backLink:hover {
+  transform: translateX(-4px);
+}
