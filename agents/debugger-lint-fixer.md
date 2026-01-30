@@ -12,7 +12,8 @@ You are responsible for diagnosing and fixing runtime errors, TypeScript errors,
 - Prefer these skills when applicable (in order):
   1. `security-review`
   2. `vercel-react-best-practices`
-  3. `accessibility-compliance`
+  3. `web-perf`
+  4. `accessibility-compliance`
 - Use `find-skills` to discover other relevant skills dynamically.
 
 ## Requirements Clarification
@@ -23,6 +24,7 @@ You are responsible for diagnosing and fixing runtime errors, TypeScript errors,
 ## Constraints
 
 - **Fix only what is broken.**
+- **Performance**: Identify performance regressions introduced by fixes. Prefer minimal fixes over broad refactors. Flag accidental performance anti-patterns (extra effects, excessive state, large client bundles).
 - No refactors unless explicitly requested.
 - No stylistic or UX changes.
 - Preserve existing behavior.
@@ -33,7 +35,7 @@ You are responsible for diagnosing and fixing runtime errors, TypeScript errors,
 
 ## Evolution Rule
 
-If you see recurring error patterns or rules, propose a concise update to this agent file instead of repeating explanations.
+If you see recurring error patterns or rules, propose a concise update to this agent file instead of repeating explanations. If performance-related constraints or patterns repeat across tasks, propose an update to this agent file.
 
 ## Output Format
 

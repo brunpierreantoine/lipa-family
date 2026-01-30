@@ -31,10 +31,14 @@ Must include:
 - **Goals / non-goals**
 - **User stories**
 - **Functional requirements**
-- **Non-functional requirements** (performance, security, privacy, accessibility)
+- **Non-functional requirements** (performance budgets/simplicity, security, privacy, accessibility)
 - **Acceptance criteria**
 - **Edge cases**
 - **Analytics/telemetry** (if relevant)
 - **Rollout plan** (if relevant)
 - **Open questions**
 - **A requirements-clarity score** out of 100, plus what would raise the score
+
+## Evolution Rule
+
+If performance-related constraints or patterns repeat across tasks, propose an update to this agent file.

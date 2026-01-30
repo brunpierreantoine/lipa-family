@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, useRef } from "react";
 import Link from "next/link";
-import { DEFAULT_FAMILY_PROFILE, SETTINGS_STORAGE_KEY, THEME_STORAGE_KEY } from "@/lib/storyDefaults";
+import { DEFAULT_FAMILY_PROFILE, SETTINGS_STORAGE_KEY } from "@/lib/storyDefaults";
 import { triggerConfetti } from "@/lib/confetti";
 
 type StoryStyle = "Educatif" | "Amusant" | "Aventure" | "Magique";
@@ -97,25 +97,19 @@ export default function StoryPage() {
   const [keywords, setKeywords] = useState("");
   const [moral, setMoral] = useState("");
 
-  const [familyProfile] = useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem(SETTINGS_STORAGE_KEY) || DEFAULT_FAMILY_PROFILE;
-    }
-    return DEFAULT_FAMILY_PROFILE;
-  });
+  const [familyProfile, setFamilyProfile] = useState(DEFAULT_FAMILY_PROFILE);
+
+  useEffect(() => {
+    const saved = localStorage.getItem(SETTINGS_STORAGE_KEY);
+    if (saved) setFamilyProfile(saved);
+  }, []);
 
   const [rawStory, setRawStory] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const storyEndRef = useRef<HTMLDivElement>(null);
 
-  // Apply theme from localStorage
-  useEffect(() => {
-    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
-    if (savedTheme === "light" || savedTheme === "dark") {
-      document.documentElement.setAttribute("data-theme", savedTheme);
-    }
-  }, []);
+  // Theme sync removed - handled globally in layout.tsx via themeScript
 
   // Scroll to story when it appears
   useEffect(() => {

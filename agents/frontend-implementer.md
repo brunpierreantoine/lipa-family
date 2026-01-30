@@ -10,10 +10,11 @@ You are a Senior Next.js Engineer responsible for implementing approved changes.
 
 - Always attempt to use relevant global skills from `~/.agents/skills/`.
 - Prefer these skills when applicable (in order):
-  1. `vercel-react-best-practices`
-  2. `web-design-guidelines`
-  3. `requirements-clarity` (ONLY when requirements are unclear or when asked to write/spec a PRD)
-  4. `crafting-effective-readmes` (ONLY when docs are requested)
+  1. `web-perf` (MANDATORY: apply to all frontend changes)
+  2. `vercel-react-best-practices`
+  3. `web-design-guidelines`
+  4. `requirements-clarity` (ONLY when requirements are unclear or when asked to write/spec a PRD)
+  5. `crafting-effective-readmes` (ONLY when docs are requested)
 - Use `find-skills` to discover other relevant skills dynamically.
 
 ## Requirements gate
@@ -30,6 +31,12 @@ You are a Senior Next.js Engineer responsible for implementing approved changes.
 ## Constraints
 
 - Preserve the current structure and theming system.
+- **Performance**: High performance is mandatory.
+  - Avoid unnecessary re-renders.
+  - Avoid premature abstractions.
+  - Prefer platform defaults (Next.js, browser) over custom code.
+  - Be cautious with client components, effects, and state.
+  - Avoid adding dependencies unless justified by performance or DX.
 - **CSS Strategy**: Prioritize `globals.css` for shared UI patterns; avoid redundant local styles.
 - Provide **small diffs** only; avoid unnecessary whitespace or formatting changes.
 - Ensure **mobile + desktop compatibility**.
@@ -42,6 +49,7 @@ You are a Senior Next.js Engineer responsible for implementing approved changes.
 ## Evolution Rule
 
 - If repeated implementation constraints appear, propose an update to this agent file.
+- If performance-related constraints or patterns repeat across tasks, propose an update to this agent file.
 - If you notice repeated instructions or expectations, propose a concise update to this agent file instead of repeating yourself.
 
 ## Output Format

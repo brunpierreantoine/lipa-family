@@ -1,24 +1,7 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { THEME_STORAGE_KEY } from "@/lib/storyDefaults";
+import ThemeToggle from "@/app/components/ThemeToggle";
 
 export default function Home() {
-  const [theme, setTheme] = useState<"light" | "dark">(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem(THEME_STORAGE_KEY);
-      if (saved === "light" || saved === "dark") return saved;
-    }
-    return "light";
-  });
-
-  // Theme sync
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem(THEME_STORAGE_KEY, theme);
-  }, [theme]);
-
   return (
     <main className="container">
       {/* Header */}
@@ -31,14 +14,7 @@ export default function Home() {
         </div>
 
         <div className="headerActions">
-          <button
-            className="btn"
-            onClick={() => setTheme((t) => (t === "light" ? "dark" : "light"))}
-            aria-label="Basculer le thème"
-            title="Basculer le thème"
-          >
-            {theme === "light" ? "🌙 Mode nuit" : "☀️ Mode jour"}
-          </button>
+          <ThemeToggle />
 
           <Link href="/settings" className="btn" aria-label="Réglages" title="Réglages">
             ⚙️

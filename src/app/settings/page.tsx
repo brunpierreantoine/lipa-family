@@ -2,27 +2,21 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { DEFAULT_FAMILY_PROFILE, SETTINGS_STORAGE_KEY, THEME_STORAGE_KEY } from "@/lib/storyDefaults";
+import { DEFAULT_FAMILY_PROFILE, SETTINGS_STORAGE_KEY } from "@/lib/storyDefaults";
 import { triggerConfetti } from "@/lib/confetti";
 
 export default function SettingsPage() {
-  const [text, setText] = useState(() => {
-    if (typeof window !== "undefined") {
-      const existing = localStorage.getItem(SETTINGS_STORAGE_KEY);
-      if (existing && existing.trim().length > 0) return existing;
-    }
-    return DEFAULT_FAMILY_PROFILE;
-  });
+  const [text, setText] = useState(DEFAULT_FAMILY_PROFILE);
+
+  useEffect(() => {
+    const existing = localStorage.getItem(SETTINGS_STORAGE_KEY);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (existing && existing.trim().length > 0) setText(existing);
+  }, []);
 
   // Initial text load removed - now handled in lazy initializer to avoid cascading renders
 
-  // Apply theme from localStorage
-  useEffect(() => {
-    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
-    if (savedTheme === "light" || savedTheme === "dark") {
-      document.documentElement.setAttribute("data-theme", savedTheme);
-    }
-  }, []);
+  // Theme sync removed - handled globally in layout.tsx via themeScript
 
   function save() {
     localStorage.setItem(SETTINGS_STORAGE_KEY, text);
