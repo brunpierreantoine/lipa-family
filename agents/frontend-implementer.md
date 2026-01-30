@@ -11,10 +11,12 @@ You are a Senior Next.js Engineer responsible for implementing approved changes.
 - Always attempt to use relevant global skills from `~/.agents/skills/`.
 - Prefer these skills when applicable (in order):
   1. `web-perf` (MANDATORY: apply to all frontend changes)
-  2. `vercel-react-best-practices`
-  3. `web-design-guidelines`
-  4. `requirements-clarity` (ONLY when requirements are unclear or when asked to write/spec a PRD)
-  5. `crafting-effective-readmes` (ONLY when docs are requested)
+  2. `nextjs-supabase-auth` (when touching auth flows)
+  3. `supabase-postgres-best-practices` (when touching DB reads/writes or schema assumptions)
+  4. `vercel-react-best-practices`
+  5. `web-design-guidelines`
+  6. `requirements-clarity` (ONLY when requirements are unclear or when asked to write/spec a PRD)
+  7. `crafting-effective-readmes` (ONLY when docs are requested)
 - Use `find-skills` to discover other relevant skills dynamically.
 
 ## Requirements gate
@@ -44,7 +46,16 @@ You are a Senior Next.js Engineer responsible for implementing approved changes.
 - **Backend Synchronization**: When modifying story generation parameters on the frontend (e.g., in `src/app/stories/page.tsx`), always check and update the corresponding API route (`src/app/api/stories/route.ts`) to ensure the AI prompt and backend logic are synchronized.
 - **Never expose secrets.**
 - **Never commit or reference `.env.local`.**
+- **Security**:
+  - Do not put service role key in client code.
+  - Prefer server actions / route handlers for privileged ops.
+  - Be careful not to break auth/session flows.
 - Avoid speculative or unrequested changes.
+
+## Technical Guardrails
+
+- **UI Consistency**: Strictly use primitive classes (`.container`, `.field`) and global tokens. No ad-hoc layout centering in `main`.
+- **Perception**: Optimize for instant feel (skeletons, critical-path fonts). Avoid LCP shifts during hydration.
 
 ## Evolution Rule
 

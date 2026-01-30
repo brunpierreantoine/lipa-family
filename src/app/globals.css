@@ -20,8 +20,8 @@ body {
   background-repeat: no-repeat;
   background-attachment: fixed;
   color: var(--text-main);
-  font-family: "Comic Sans MS", "SF Pro Rounded", "Avenir Next",
-    "Trebuchet MS", system-ui, var(--font-geist-sans);
+  font-family: var(--font-geist-sans), "SF Pro Rounded", "Avenir Next",
+    "Trebuchet MS", system-ui, sans-serif;
 }
 
 /* Optional: smoother font rendering */
@@ -57,7 +57,7 @@ body {
   grid-column: 1 / -1;
 }
 
-.fullRow:has(button) {
+.fullRow:not(.label):has(button) {
   display: flex;
   justify-content: center;
 }
@@ -89,11 +89,58 @@ body {
   outline: none;
 }
 
+select.field {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b625c'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
+}
+
+[data-theme="dark"] select.field {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23b9b9b9'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+}
+
 .textarea {
   padding: 12px;
   border-radius: 14px;
   line-height: 1.5;
   resize: vertical;
+}
+
+/* Reusable wrapper for fields with internal actions (like a clear cross) */
+.fieldContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.fieldContainer .field {
+  padding-right: 40px;
+  /* Make space for the icon */
+}
+
+.fieldActionBtn {
+  position: absolute;
+  right: 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--text-muted);
+  transition: all 0.2s;
+  opacity: 0.6;
+}
+
+.fieldActionBtn:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--danger);
 }
 
 /* Buttons / links that look like buttons */

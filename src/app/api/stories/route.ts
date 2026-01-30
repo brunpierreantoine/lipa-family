@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 import { STORY_CONFIG } from "@/lib/storyConfig";
+import { createClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 
@@ -33,6 +34,13 @@ export async function POST(req: Request) {
       );
     }
 
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await req.json();
 
     const minutes = coerceMinutes(body.minutes);
@@ -40,7 +48,21 @@ export async function POST(req: Request) {
     const universe = String(body.universe ?? "Féerique") as StoryUniverse;
     const moral = String(body.moral ?? "").trim();
     const keywordsRaw = String(body.keywords ?? "");
-    const familyProfile = String(body.familyProfile ?? "").trim();
+
+    // Fetch the active family profile for this user
+    const { data: memberships } = await supabase
+      .from("memberships")
+      .select("families(ai_profile)")
+      .eq("user_id", user.id)
+      .limit(1);
+
+    if (!memberships || memberships.length === 0) {
+      return NextResponse.json({ error: "No family found for user" }, { status: 404 });
+    }
+
+    // @ts-ignore
+    const familyData = Array.isArray(memberships[0].families) ? memberships[0].families[0] : memberships[0].families;
+    const familyProfile = String(familyData?.ai_profile ?? "").trim();
 
     const keywords = keywordsRaw
       .split(",")

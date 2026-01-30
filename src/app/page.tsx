@@ -1,19 +1,46 @@
 import Link from "next/link";
 import ThemeToggle from "@/app/components/ThemeToggle";
+import FamilySwitcher from "@/app/components/FamilySwitcher";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient();
+
+  // Fetch memberships directly. Middleware ensures we have a session.
+  // RLS ensures we only see our own data.
+  const { data: memberships } = await supabase
+    .from("memberships")
+    .select("family_id, families(id, display_name)");
+
+  if (!memberships || memberships.length === 0) {
+    // If we have a session but no membership, we need onboarding.
+    redirect("/onboarding");
+  }
+
+  // Simplified "active" logic for Phase 1
+  const activeFamily = memberships[0];
+  // @ts-ignore
+  const familyData = Array.isArray(activeFamily.families) ? activeFamily.families[0] : activeFamily.families;
+  const familyName = familyData?.display_name || "Lipa Family";
+
+  const allFamilies = memberships
+    .map(m => Array.isArray(m.families) ? m.families[0] : m.families)
+    .filter(Boolean) as { id: string, display_name: string }[];
+
   return (
     <main className="container">
       {/* Header */}
       <div className="headerRow">
         <div className="headerLeft">
-          <h1 className="pageTitle">Lipa Family</h1>
+          <h1 className="pageTitle">{familyName}</h1>
           <div className="subtitle">
             Bienvenue dans votre espace familial. Retrouvez ici tous vos outils et réglages.
           </div>
         </div>
 
         <div className="headerActions">
+          <FamilySwitcher families={allFamilies} activeFamilyId={familyData?.id} />
           <ThemeToggle />
 
           <Link href="/settings" className="btn" aria-label="Réglages" title="Réglages">

@@ -31,6 +31,7 @@ You are responsible for diagnosing and fixing runtime errors, TypeScript errors,
 - Provide **small, targeted diffs** only.
 - **Never expose secrets.**
 - **Never commit or reference `.env.local`.**
+- **Security**: Be careful not to break auth/session flows and do not leak secrets in logs.
 - **Documentation work is out of scope for this agent.** Do NOT use the `crafting-effective-readmes` skill.
 
 ## Evolution Rule
