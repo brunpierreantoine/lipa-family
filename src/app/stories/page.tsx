@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import Link from "next/link";
 import { DEFAULT_FAMILY_PROFILE, SETTINGS_STORAGE_KEY, THEME_STORAGE_KEY } from "@/lib/storyDefaults";
+import { triggerConfetti } from "@/lib/confetti";
 
-type StoryStyle = "Cozy" | "Funny" | "Adventure" | "Magical" | "Sci-Fi";
+type StoryStyle = "Educatif" | "Amusant" | "Aventure" | "Magique";
+type StoryUniverse = "Féerique" | "Futuriste / SF" | "Dinosaures" | "Animaux" | "Vie quotidienne";
 type StoryMinutes = 3 | 5 | 10;
 
 function parseStory(raw: string) {
@@ -14,14 +16,14 @@ function parseStory(raw: string) {
   const lines = text.split("\n");
   const nonEmpty = lines.map((l) => l.trim()).filter(Boolean);
 
-  const title = nonEmpty[0] ?? "Une histoire du soir";
+  const titleLine = nonEmpty[0] ?? "";
+  const title = titleLine.replace(/^[#\s*_-]+/, "").trim() || "Une histoire du soir";
 
   const chapters: { heading: string; paragraphs: string[] }[] = [];
 
   let currentHeading = "";
   let currentBody: string[] = [];
 
-  // Anything written before the first "Chapitre X" goes here
   const introLines: string[] = [];
 
   function bodyToParagraphs(bodyLines: string[]) {
@@ -48,9 +50,10 @@ function parseStory(raw: string) {
       continue;
     }
 
-    if (/^chapitre\s+\d+/i.test(line)) {
+    // Match "Chapitre 1", "### Chapitre 1", "## Chapitre 1", etc.
+    if (/^(?:#+\s*)?chapitre\s+\d+/i.test(line)) {
       pushCurrent();
-      currentHeading = line;
+      currentHeading = line.replace(/^[#\s*_-]+/, "").trim();
       currentBody = [];
       continue;
     }
@@ -61,6 +64,8 @@ function parseStory(raw: string) {
 
   pushCurrent();
 
+  // If we found chapters, merge intro lines into the first chapter or keep them separate?
+  // User wants chapters as headings. If no chapters found by regex, we fall back.
   if (chapters.length > 0) {
     const introParagraphs = bodyToParagraphs(introLines);
     if (introParagraphs.length > 0) {
@@ -72,13 +77,14 @@ function parseStory(raw: string) {
     return { title, chapters };
   }
 
+  // Fallback: Use the first non-title line as content if no chapters found
   const body = nonEmpty.slice(1).join("\n\n").trim();
   return {
     title,
     chapters: [
       {
-        heading: "Histoire",
-        paragraphs: body ? body.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean) : [],
+        heading: "", // Remove "Histoire" as per user request
+        paragraphs: body ? body.split(/\n\s*\n/).map((p: string) => p.trim()).filter(Boolean) : [],
       },
     ],
   };
@@ -86,7 +92,8 @@ function parseStory(raw: string) {
 
 export default function StoryPage() {
   const [minutes, setMinutes] = useState<StoryMinutes>(5);
-  const [style, setStyle] = useState<StoryStyle>("Cozy");
+  const [style, setStyle] = useState<StoryStyle>("Amusant");
+  const [universe, setUniverse] = useState<StoryUniverse>("Féerique");
   const [keywords, setKeywords] = useState("");
   const [moral, setMoral] = useState("");
 
@@ -100,6 +107,8 @@ export default function StoryPage() {
   const [rawStory, setRawStory] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const storyEndRef = useRef<HTMLDivElement>(null);
+
   // Apply theme from localStorage
   useEffect(() => {
     const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
@@ -107,6 +116,14 @@ export default function StoryPage() {
       document.documentElement.setAttribute("data-theme", savedTheme);
     }
   }, []);
+
+  // Scroll to story when it appears
+  useEffect(() => {
+    if (rawStory && !isLoading && !rawStory.startsWith("Je fabrique") && !rawStory.startsWith("Oups")) {
+      triggerConfetti();
+      storyEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [rawStory, isLoading]);
 
   const story = useMemo(() => {
     if (isLoading) return null;
@@ -122,10 +139,17 @@ export default function StoryPage() {
     setRawStory("Je fabrique l’histoire… ✨");
 
     try {
-      const res = await fetch("/api/story", {
+      const res = await fetch("/api/stories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ minutes, style, keywords, moral, familyProfile }),
+        body: JSON.stringify({
+          minutes,
+          style,
+          universe,
+          keywords,
+          moral,
+          familyProfile
+        }),
       });
 
       const contentType = res.headers.get("content-type") || "";
@@ -152,7 +176,8 @@ export default function StoryPage() {
     setMoral("");
     setRawStory("");
     setMinutes(5);
-    setStyle("Cozy");
+    setStyle("Amusant");
+    setUniverse("Féerique");
   }
 
   const isDisabled = !canGenerate || isLoading;
@@ -164,8 +189,7 @@ export default function StoryPage() {
         <div className="headerLeft">
           <h1 className="pageTitle">Histoires du soir</h1>
           <div className="subtitle">
-            On choisit ensemble une durée, un style, quelques mots rigolos… et une petite leçon à
-            apprendre. Puis on lit tranquillement 📖✨
+            On choisit ensemble une durée, un style, un univers… et on crée une histoire magique 📖✨
           </div>
         </div>
 
@@ -179,31 +203,47 @@ export default function StoryPage() {
       {/* Controls */}
       <div className="cardSoft contentWrapper">
         <div className="controlsGrid">
-          <label className="label">
-            Durée
-            <select
-              value={minutes}
-              onChange={(e) => setMinutes(Number(e.target.value) as StoryMinutes)}
-              className="field"
-            >
-              <option value={3}>3 minutes (petite histoire)</option>
-              <option value={5}>5 minutes (histoire moyenne)</option>
-              <option value={10}>10 minutes (grande histoire)</option>
-            </select>
-          </label>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }} className="fullRowMobile">
+            <label className="label">
+              Durée
+              <select
+                value={minutes}
+                onChange={(e) => setMinutes(Number(e.target.value) as StoryMinutes)}
+                className="field"
+              >
+                <option value={3}>3 min</option>
+                <option value={5}>5 min</option>
+                <option value={10}>10 min</option>
+              </select>
+            </label>
 
-          <label className="label">
-            Style
+            <label className="label">
+              Style
+              <select
+                value={style}
+                onChange={(e) => setStyle(e.target.value as StoryStyle)}
+                className="field"
+              >
+                <option value="Amusant">Amusant</option>
+                <option value="Educatif">Éducatif</option>
+                <option value="Aventure">Aventure</option>
+                <option value="Magique">Magique</option>
+              </select>
+            </label>
+          </div>
+
+          <label className="label fullRow">
+            Univers
             <select
-              value={style}
-              onChange={(e) => setStyle(e.target.value as StoryStyle)}
+              value={universe}
+              onChange={(e) => setUniverse(e.target.value as StoryUniverse)}
               className="field"
             >
-              <option value="Cozy">Doudou</option>
-              <option value="Funny">Drôle</option>
-              <option value="Adventure">Aventure</option>
-              <option value="Magical">Magique</option>
-              <option value="Sci-Fi">Science-fiction</option>
+              <option value="Féerique">Féerique (fées, dragons...)</option>
+              <option value="Futuriste / SF">Futuriste / SF (robots, étoiles...)</option>
+              <option value="Dinosaures">Dinosaures (T-Rex, diplodocus...)</option>
+              <option value="Animaux">Animaux (animaux de la forêt, savane...)</option>
+              <option value="Vie quotidienne">Vie quotidienne (école, parc, dodo...)</option>
             </select>
           </label>
 
@@ -214,7 +254,7 @@ export default function StoryPage() {
               autoComplete="off"
               value={keywords}
               onChange={(e) => setKeywords(e.target.value)}
-              placeholder="ex : dragon, lune, cookies, dinosaure…"
+              placeholder="ex : lune, cookies, dinosaure…"
               className="field"
             />
             <span className="helper">Astuce : 2 à 5 mots, c’est parfait.</span>
@@ -248,22 +288,24 @@ export default function StoryPage() {
       </div>
 
       {/* Book output */}
-      {story && (
-        <article className="bookCard">
-          <h2 className="storyTitle">{story.title}</h2>
+      <div ref={storyEndRef} style={{ scrollMarginTop: "24px" }}>
+        {story && (
+          <article className="bookCard">
+            <h2 className="storyTitle">{story.title}</h2>
 
-          {story.chapters.map((ch, i) => (
-            <section key={i} style={{ marginTop: i === 0 ? 16 : 22 }}>
-              <h3 className="chapterHeading">{ch.heading}</h3>
-              {ch.paragraphs.map((p, idx) => (
-                <p key={idx} className="paragraph">
-                  {p}
-                </p>
-              ))}
-            </section>
-          ))}
-        </article>
-      )}
+            {story.chapters.map((ch: { heading: string; paragraphs: string[] }, i: number) => (
+              <section key={i} style={{ marginTop: i === 0 ? 16 : 22 }}>
+                {ch.heading && <h3 className="chapterHeading">{ch.heading}</h3>}
+                {ch.paragraphs.map((p: string, idx: number) => (
+                  <p key={idx} className="paragraph">
+                    {p}
+                  </p>
+                ))}
+              </section>
+            ))}
+          </article>
+        )}
+      </div>
     </main>
   );
 }

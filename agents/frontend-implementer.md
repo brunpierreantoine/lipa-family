@@ -34,6 +34,7 @@ You are a Senior Next.js Engineer responsible for implementing approved changes.
 - Provide **small diffs** only; avoid unnecessary whitespace or formatting changes.
 - Ensure **mobile + desktop compatibility**.
 - **Quality**: Systematically run linting before finalizing any implementation.
+- **Backend Synchronization**: When modifying story generation parameters on the frontend (e.g., in `src/app/stories/page.tsx`), always check and update the corresponding API route (`src/app/api/stories/route.ts`) to ensure the AI prompt and backend logic are synchronized.
 - **Never expose secrets.**
 - **Never commit or reference `.env.local`.**
 - Avoid speculative or unrequested changes.

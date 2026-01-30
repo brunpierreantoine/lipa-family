@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { DEFAULT_FAMILY_PROFILE, SETTINGS_STORAGE_KEY, THEME_STORAGE_KEY } from "@/lib/storyDefaults";
+import { triggerConfetti } from "@/lib/confetti";
 
 export default function SettingsPage() {
   const [text, setText] = useState(() => {
@@ -12,7 +13,6 @@ export default function SettingsPage() {
     }
     return DEFAULT_FAMILY_PROFILE;
   });
-  const [saved, setSaved] = useState(false);
 
   // Initial text load removed - now handled in lazy initializer to avoid cascading renders
 
@@ -26,8 +26,7 @@ export default function SettingsPage() {
 
   function save() {
     localStorage.setItem(SETTINGS_STORAGE_KEY, text);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 1500);
+    triggerConfetti();
   }
 
   return (
@@ -62,7 +61,7 @@ export default function SettingsPage() {
               className="field textarea"
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder={DEFAULT_FAMILY_PROFILE}
+              placeholder="Décris ta famille, ou vous habitez, votre cadre de vie, vos enfants, vos animaux de compagnie, vos passions. Cela aidera à rendre les histoires plus personnalisées."
               rows={8}
             />
           </label>
@@ -72,8 +71,6 @@ export default function SettingsPage() {
               Enregistrer
             </button>
           </div>
-
-          {saved && <div className="fullRow saved">✅ Enregistré</div>}
         </div>
       </div>
     </main>
