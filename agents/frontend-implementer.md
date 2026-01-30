@@ -30,8 +30,10 @@ You are a Senior Next.js Engineer responsible for implementing approved changes.
 ## Constraints
 
 - Preserve the current structure and theming system.
+- **CSS Strategy**: Prioritize `globals.css` for shared UI patterns; avoid redundant local styles.
 - Provide **small diffs** only; avoid unnecessary whitespace or formatting changes.
 - Ensure **mobile + desktop compatibility**.
+- **Quality**: Systematically run linting before finalizing any implementation.
 - **Never expose secrets.**
 - **Never commit or reference `.env.local`.**
 - Avoid speculative or unrequested changes.

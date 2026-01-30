@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import styles from "./settings.module.css";
 import { DEFAULT_FAMILY_PROFILE, SETTINGS_STORAGE_KEY, THEME_STORAGE_KEY } from "@/lib/storyDefaults";
 
 export default function SettingsPage() {
@@ -49,7 +48,7 @@ export default function SettingsPage() {
             aria-label="Retour à l’accueil"
             title="Retour"
           >
-            ← Retour
+            🏠 Accueil
           </Link>
         </div>
       </div>
@@ -74,7 +73,7 @@ export default function SettingsPage() {
             </button>
           </div>
 
-          {saved && <div className={`fullRow ${styles.saved}`}>✅ Enregistré</div>}
+          {saved && <div className="fullRow saved">✅ Enregistré</div>}
         </div>
       </div>
     </main>

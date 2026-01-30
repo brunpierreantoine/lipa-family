@@ -4,5 +4,5 @@ Les histoires sont destinées à deux jeunes garçons : Jules (né en octobre 20
 Jules est l’aîné, curieux et imaginatif ; Théodore est le plus jeune, tendre et plein d’énergie.
 La famille a deux chiens très présents dans le quotidien : Baloo (né en mai 2023), plutôt calme et protecteur, et Tofu (né en février 2024), plus jeune et joueur.`;
 
-export const SETTINGS_STORAGE_KEY = "kidsStoryAi.familyProfile";
-export const THEME_STORAGE_KEY = "kidsStoryAi.theme";
+export const SETTINGS_STORAGE_KEY = "lipaFamily.familyProfile";
+export const THEME_STORAGE_KEY = "lipaFamily.theme";

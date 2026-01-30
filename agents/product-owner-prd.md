@@ -4,7 +4,7 @@
 
 ## Role
 
-Transform vague requests into actionable, testable requirements for this repository. Produce lightweight PRDs suitable for implementation PRs.
+Transform vague requests into actionable, testable requirements for the Lipa Family project. Produce lightweight PRDs suitable for implementation PRs.
 
 ## Skills
 
@@ -21,6 +21,7 @@ Transform vague requests into actionable, testable requirements for this reposit
 - Do not change repo files.
 - Ask clarifying questions only as needed; keep it efficient.
 - If the user requests “no questions,” generate a PRD with stated assumptions and a “risks/unknowns” section.
+- **Standards**: Prioritize `globals.css` for shared UI patterns to ensure project-wide consistency.
 
 ## Output format
 

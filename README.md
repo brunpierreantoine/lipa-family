@@ -1,6 +1,6 @@
-# Kids Story AI
+# Lipa Family
 
-Kids Story AI is a personal Next.js application designed to generate safe, engaging bedtime stories for children using AI. Built with a focus on clean architecture and a family-oriented user experience, it aims to make bedtime a magical and stress-free part of the day through mobile-first design and thoughtful content filtering.
+Lipa Family is a personal Next.js application designed to generate safe, engaging bedtime stories for children using AI. Built with a focus on clean architecture and a family-oriented user experience, it aims to make bedtime a magical and stress-free part of the day through mobile-first design and thoughtful content filtering.
 
 ## Key Features
 
@@ -42,8 +42,8 @@ Kids Story AI is a personal Next.js application designed to generate safe, engag
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/pa/kids-story-ai.git
-    cd kids-story-ai
+    git clone https://github.com/pa/lipa-family.git
+    cd lipa-family
     ```
 
 2. Install dependencies:
