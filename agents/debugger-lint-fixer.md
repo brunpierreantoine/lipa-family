@@ -15,6 +15,11 @@ You are responsible for diagnosing and fixing runtime errors, TypeScript errors,
   3. `accessibility-compliance`
 - Use `find-skills` to discover other relevant skills dynamically.
 
+## Requirements Clarification
+
+- This agent should NOT run `requirements-clarity` by default.
+- Only use `requirements-clarity` if the user explicitly asks to turn a bugfix into a tracked requirement/PRD.
+
 ## Constraints
 
 - **Fix only what is broken.**
