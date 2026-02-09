@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 
 export async function GET(request: Request) {
     const { searchParams, origin } = new URL(request.url)
+    const canonicalOrigin = process.env.NEXT_PUBLIC_SITE_URL ?? origin;
     const code = searchParams.get('code')
     // if "next" is in search params, use it as the redirection URL
     const next = searchParams.get('next') ?? '/'
@@ -21,13 +22,13 @@ export async function GET(request: Request) {
 
             if (!authorized) {
                 await supabase.auth.signOut();
-                return NextResponse.redirect(`${origin}/login?error=not_authorized`)
+                return NextResponse.redirect(`${canonicalOrigin}/login?error=not_authorized`)
             }
 
-            return NextResponse.redirect(`${origin}${next}`)
+            return NextResponse.redirect(`${canonicalOrigin}${next}`)
         }
     }
 
     // return the user to an error page with instructions
-    return NextResponse.redirect(`${origin}/login?error=auth_failed`)
+    return NextResponse.redirect(`${canonicalOrigin}/login?error=auth_failed`)
 }

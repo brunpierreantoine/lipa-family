@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useMemo } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useFastGate } from "@/lib/auth/useFastGate";
@@ -9,14 +9,17 @@ function LoginContent() {
     const supabase = useMemo(() => createClient(), []);
     const searchParams = useSearchParams();
     const error = searchParams.get("error");
+    const [isRedirecting, setIsRedirecting] = useState(false);
 
     useFastGate({ requireAuth: false, redirectIfAuthed: true });
 
     const handleGoogleLogin = async () => {
+        setIsRedirecting(true);
         const next = searchParams.get("next");
-        const redirectTo = next
-            ? `${window.location.origin}/api/auth/callback?next=${encodeURIComponent(next)}`
-            : `${window.location.origin}/api/auth/callback`;
+        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
+        const callbackUrl = new URL("/api/auth/callback", baseUrl);
+        if (next) callbackUrl.searchParams.set("next", next);
+        const redirectTo = callbackUrl.toString();
 
         await supabase.auth.signInWithOAuth({
             provider: "google",
@@ -58,9 +61,17 @@ function LoginContent() {
                     onClick={handleGoogleLogin}
                     className="btn btnPrimary"
                     style={{ gap: "10px" }}
+                    disabled={isRedirecting}
+                    aria-busy={isRedirecting}
                 >
-                    <span>Connexion avec Google</span>
+                    <span>{isRedirecting ? "Redirection vers Google..." : "Connexion avec Google"}</span>
                 </button>
+
+                {isRedirecting && (
+                    <p className="helper" style={{ textAlign: "center", marginTop: "16px" }} aria-live="polite">
+                        Connexion en cours… Si une fenêtre Google s’ouvre, suivez les instructions.
+                    </p>
+                )}
 
                 <p className="helper" style={{ textAlign: "center", marginTop: "24px" }}>
                     L&apos;accès est actuellement limité. Contactez l&apos;administrateur pour rejoindre la plateforme.
