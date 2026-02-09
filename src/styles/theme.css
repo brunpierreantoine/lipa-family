@@ -15,6 +15,9 @@
 
   --button-disabled-1: #cfc9ff;
   --button-disabled-2: #ffd1e6;
+
+  --bg-skeleton: #e5e0d8;
+  --bg-skeleton-soft: #f0ede8;
 }
 
 /* Dark theme */
@@ -34,4 +37,7 @@
 
   --button-disabled-1: #4a4680;
   --button-disabled-2: #7a3d5c;
+
+  --bg-skeleton: #2a2a2a;
+  --bg-skeleton-soft: #333333;
 }

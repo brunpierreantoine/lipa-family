@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { DEFAULT_FAMILY_PROFILE } from "@/lib/storyDefaults";
-import { triggerConfetti } from "@/lib/confetti";
 import { createClient } from "@/lib/supabase/client";
 
 interface SettingsContainerProps {
@@ -42,6 +41,7 @@ export default function SettingsContainer({
             return;
         }
 
+        const { triggerConfetti } = await import("@/lib/confetti");
         triggerConfetti();
     }
 

@@ -5,8 +5,7 @@ export function createClient() {
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
     if (!supabaseUrl || !supabaseAnonKey) {
-        console.error("Supabase environment variables are missing. Please check your .env.local file.");
-        return {} as any;
+        throw new Error("Supabase environment variables are missing. Please check your .env.local file.");
     }
 
     return createBrowserClient(

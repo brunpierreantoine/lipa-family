@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState, useRef } from "react";
 import Link from "next/link";
 import { DEFAULT_FAMILY_PROFILE } from "@/lib/storyDefaults";
-import { triggerConfetti } from "@/lib/confetti";
 
 type StoryStyle = "Educatif" | "Amusant" | "Aventure" | "Magique";
 type StoryUniverse = "Féerique" | "Futuriste / SF" | "Dinosaures" | "Animaux" | "Vie quotidienne";
@@ -105,7 +104,7 @@ export default function StoryContainer({ initialFamilyProfile }: StoryContainerP
 
     useEffect(() => {
         if (rawStory && !isLoading && !rawStory.startsWith("Je fabrique") && !rawStory.startsWith("Oups")) {
-            triggerConfetti();
+            import("@/lib/confetti").then(m => m.triggerConfetti());
             storyEndRef.current?.scrollIntoView({ behavior: "smooth" });
         }
     }, [rawStory, isLoading]);
@@ -156,14 +155,6 @@ export default function StoryContainer({ initialFamilyProfile }: StoryContainerP
         }
     }
 
-    function clearAll() {
-        setKeywords("");
-        setMoral("");
-        setRawStory("");
-        setMinutes(5);
-        setStyle("Amusant");
-        setUniverse("Féerique");
-    }
 
     const isDisabled = !canGenerate || isLoading;
 

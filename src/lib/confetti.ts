@@ -6,9 +6,6 @@
  */
 export function triggerConfetti() {
     const count = 60;
-    const defaults = {
-        origin: { y: 0.7 },
-    };
 
     const container = document.createElement("div");
     container.style.position = "fixed";

@@ -1,4 +1,4 @@
-import { Hono } from 'hono'
+import { Hono, type Context } from 'hono'
 import { cors } from 'hono/cors'
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { getCookie, setCookie } from 'hono/cookie'
@@ -9,7 +9,7 @@ export const app = new Hono().basePath('/api')
 
 app.use('*', cors())
 
-const getSupabase = (c: any) => {
+const getSupabase = (c: Context) => {
     return createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -19,10 +19,10 @@ const getSupabase = (c: any) => {
                     return getCookie(c, name)
                 },
                 set(name: string, value: string, options: CookieOptions) {
-                    setCookie(c, name, value, options as any)
+                    setCookie(c, name, value, options as CookieOptions & { sameSite?: "Strict" | "Lax" | "None" })
                 },
                 remove(name: string, options: CookieOptions) {
-                    setCookie(c, name, '', options as any)
+                    setCookie(c, name, '', options as CookieOptions & { sameSite?: "Strict" | "Lax" | "None" })
                 },
             },
         }
@@ -75,7 +75,6 @@ app.post('/stories', async (c) => {
             return c.json({ error: "No family found for user" }, 404);
         }
 
-        // @ts-ignore
         const familyData = Array.isArray(memberships[0].families) ? memberships[0].families[0] : memberships[0].families;
         const familyProfile = String(familyData?.ai_profile ?? "").trim();
 
@@ -142,8 +141,9 @@ FORMAT:
         }
 
         return c.json({ story });
-    } catch (err: any) {
-        return c.json({ error: err.message || "Unknown error" }, 500);
+    } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : "Unknown error";
+        return c.json({ error: errorMessage }, 500);
     }
 })
 

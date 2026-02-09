@@ -20,7 +20,6 @@ export default async function Home() {
 
   // Simplified "active" logic for Phase 1
   const activeFamily = memberships[0];
-  // @ts-ignore
   const familyData = Array.isArray(activeFamily.families) ? activeFamily.families[0] : activeFamily.families;
   const familyName = familyData?.display_name || "Lipa Family";
 

@@ -36,6 +36,16 @@ body {
   outline-offset: 2px;
 }
 
+.skeleton {
+  background-color: var(--bg-skeleton);
+  border-radius: 8px;
+}
+
+.skeletonSoft {
+  background-color: var(--bg-skeleton-soft);
+  border-radius: 8px;
+}
+
 /* ---------- Shared UI primitives (used across pages) ---------- */
 
 .container {
