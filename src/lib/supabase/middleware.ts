@@ -77,8 +77,10 @@ export async function updateSession(request: NextRequest) {
     const isRoot = request.nextUrl.pathname === '/'
     const isStories = request.nextUrl.pathname.startsWith('/stories')
     const isSettings = request.nextUrl.pathname.startsWith('/settings')
+    const isOnboarding = request.nextUrl.pathname.startsWith('/onboarding')
+    const isLogin = request.nextUrl.pathname.startsWith('/login')
 
-    const skipSessionCheck = isPublicFile || isApi || isRoot || isStories || isSettings
+    const skipSessionCheck = isPublicFile || isApi || isRoot || isStories || isSettings || isLogin || isOnboarding
 
     if (skipSessionCheck) {
         return response

@@ -1,20 +1,55 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createFamily } from "./actions";
-import { triggerConfetti } from "@/lib/confetti";
+import { createClient } from "@/lib/supabase/client";
 
 export default function OnboardingPage() {
+    const supabase = useMemo(() => createClient(), []);
+    const router = useRouter();
     const [step, setStep] = useState(1);
     const [name, setName] = useState("");
     const [profile, setProfile] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        const checkSessionAndMembership = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (cancelled) return;
+
+            if (!session?.user) {
+                router.replace("/login?next=/onboarding");
+                return;
+            }
+
+            const { data: memberships, error } = await supabase
+                .from("memberships")
+                .select("family_id")
+                .limit(1);
+
+            if (cancelled) return;
+
+            if (!error && memberships && memberships.length > 0) {
+                router.replace("/");
+            }
+        };
+
+        checkSessionAndMembership();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [router, supabase]);
 
     const nextStep = () => setStep((s) => s + 1);
     const prevStep = () => setStep((s) => s - 1);
 
     const handleSubmit = async (formData: FormData) => {
         setIsSubmitting(true);
+        const { triggerConfetti } = await import("@/lib/confetti");
         triggerConfetti();
         // Short delay to let the user see the confetti
         await new Promise(r => setTimeout(r, 800));
