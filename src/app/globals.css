@@ -20,7 +20,7 @@ body {
   background-repeat: no-repeat;
   background-attachment: fixed;
   color: var(--text-main);
-  font-family: var(--font-geist-sans), "SF Pro Rounded", "Avenir Next",
+  font-family: "Comic Sans MS", "Comic Sans", var(--font-geist-sans), "SF Pro Rounded", "Avenir Next",
     "Trebuchet MS", system-ui, sans-serif;
 }
 

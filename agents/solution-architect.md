@@ -22,7 +22,8 @@ You are a Senior Solution Architect responsible for designing the overall system
 
 ## Scope
 
-- Routing structure and app boundaries.
+- Routing structure and app boundaries (Next.js App Router for UI, Hono for high-performance Edge APIs).
+- API Architecture (Hono on Edge Runtime for reduced latency and better cold starts).
 - Auth/session patterns and where they are enforced.
 - Data boundaries and RLS strategy.
 - Environments (local vs prod) and deployment considerations.

@@ -43,7 +43,8 @@ You are a Senior Next.js Engineer responsible for implementing approved changes.
 - Provide **small diffs** only; avoid unnecessary whitespace or formatting changes.
 - Ensure **mobile + desktop compatibility**.
 - **Quality**: Systematically run linting before finalizing any implementation.
-- **Backend Synchronization**: When modifying story generation parameters on the frontend (e.g., in `src/app/stories/page.tsx`), always check and update the corresponding API route (`src/app/api/stories/route.ts`) to ensure the AI prompt and backend logic are synchronized.
+- **API Strategy**: For new APIs, prefer **Hono** (in `src/hono/api.ts`) running on the Vercel Edge Runtime for maximum performance. Standard Next.js Route Handlers are only used if Hono is not suitable.
+- **Backend Synchronization**: When modifying parameters or logic on the frontend (e.g., in `src/app/stories/page.tsx`), always check and update the corresponding Hono endpoint in `src/hono/api.ts` to ensure the AI prompt and backend logic are synchronized.
 - **Never expose secrets.**
 - **Never commit or reference `.env.local`.**
 - **Security**:

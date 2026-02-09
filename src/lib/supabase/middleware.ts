@@ -62,20 +62,31 @@ export async function updateSession(request: NextRequest) {
         }
     )
 
-    // Protected routes logic
+    // --- Performance Optimization: Skip Session Check List ---
+    // These routes bypass the expensive sequential `getUser()` call in middleware 
+    // to avoid waterfalls and enable faster TTFB/Streaming. 
+    //
+    // IMPORTANT Security Constraints for Skip List:
+    // 1. MUST ONLY include read-only routes or user-scoped data routes.
+    // 2. MUST NOT include admin routes, write/mutation routes, or shared data routes.
+    // 3. These pages must handle unauthenticated states (e.g., redirecting in page logic).
+
     const isAuthPage = request.nextUrl.pathname.startsWith('/login')
     const isPublicFile = request.nextUrl.pathname.match(/\.(ico|png|jpg|jpeg|gif|svg)$/)
-    const isApiAuth = request.nextUrl.pathname.startsWith('/api/auth')
+    const isApi = request.nextUrl.pathname.startsWith('/api')
     const isRoot = request.nextUrl.pathname === '/'
+    const isStories = request.nextUrl.pathname.startsWith('/stories')
+    const isSettings = request.nextUrl.pathname.startsWith('/settings')
 
-    // If it's a public file or auth callback, we can skip session update for performance
-    if (isPublicFile || isApiAuth) {
+    const skipSessionCheck = isPublicFile || isApi || isRoot || isStories || isSettings
+
+    if (skipSessionCheck) {
         return response
     }
 
     const { data: { user } } = await supabase.auth.getUser()
 
-    if (!user && !isAuthPage && !isRoot) {
+    if (!user && !isAuthPage) {
         return NextResponse.redirect(new URL('/login', request.url))
     }
 

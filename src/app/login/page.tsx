@@ -10,10 +10,15 @@ function LoginContent() {
     const error = searchParams.get("error");
 
     const handleGoogleLogin = async () => {
+        const next = searchParams.get("next");
+        const redirectTo = next
+            ? `${window.location.origin}/api/auth/callback?next=${encodeURIComponent(next)}`
+            : `${window.location.origin}/api/auth/callback`;
+
         await supabase.auth.signInWithOAuth({
             provider: "google",
             options: {
-                redirectTo: `${window.location.origin}/api/auth/callback`,
+                redirectTo,
             },
         });
     };
