@@ -130,17 +130,51 @@ FORMAT:
 `.trim();
 
         const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-        const result = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
-            messages: [{ role: "user", content: prompt }],
-        });
 
-        const story = result.choices[0]?.message?.content?.trim();
-        if (!story) {
-            return c.json({ error: "No story returned by the model." }, 500);
+        try {
+            const completionStream = await openai.chat.completions.create({
+                model: "gpt-4o-mini",
+                messages: [{ role: "user", content: prompt }],
+                stream: true,
+            });
+
+            const encoder = new TextEncoder();
+            const stream = new ReadableStream<Uint8Array>({
+                async start(controller) {
+                    try {
+                        for await (const chunk of completionStream) {
+                            const delta = chunk.choices?.[0]?.delta?.content ?? "";
+                            if (!delta) continue;
+                            controller.enqueue(encoder.encode(delta));
+                        }
+                        controller.close();
+                    } catch (streamErr) {
+                        controller.error(streamErr);
+                    }
+                },
+            });
+
+            return new Response(stream, {
+                status: 200,
+                headers: {
+                    "Content-Type": "text/plain; charset=utf-8",
+                    "Cache-Control": "no-store",
+                },
+            });
+        } catch {
+            // Graceful fallback to the previous non-streaming behavior.
+            const result = await openai.chat.completions.create({
+                model: "gpt-4o-mini",
+                messages: [{ role: "user", content: prompt }],
+            });
+
+            const story = result.choices[0]?.message?.content?.trim();
+            if (!story) {
+                return c.json({ error: "No story returned by the model." }, 500);
+            }
+
+            return c.json({ story });
         }
-
-        return c.json({ story });
     } catch (err: unknown) {
         const errorMessage = err instanceof Error ? err.message : "Unknown error";
         return c.json({ error: errorMessage }, 500);

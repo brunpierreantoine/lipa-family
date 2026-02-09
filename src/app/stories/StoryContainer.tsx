@@ -110,9 +110,10 @@ export default function StoryContainer({ initialFamilyProfile }: StoryContainerP
     }, [rawStory, isLoading]);
 
     const story = useMemo(() => {
-        if (isLoading) return null;
+        if (!rawStory) return null;
+        if (rawStory.startsWith("Je fabrique") || rawStory.startsWith("Oups")) return null;
         return parseStory(rawStory);
-    }, [rawStory, isLoading]);
+    }, [rawStory]);
 
     const canGenerate = useMemo(() => {
         return keywords.trim().length > 0 || moral.trim().length > 0;
@@ -137,6 +138,45 @@ export default function StoryContainer({ initialFamilyProfile }: StoryContainerP
             });
 
             const contentType = res.headers.get("content-type") || "";
+            if (res.body && contentType.includes("text/plain")) {
+                const reader = res.body.getReader();
+                const decoder = new TextDecoder();
+                let storyBuffer = "";
+                let pendingChunk = "";
+                let flushTimer: number | null = null;
+
+                const flush = () => {
+                    if (pendingChunk) {
+                        storyBuffer += pendingChunk;
+                        pendingChunk = "";
+                        setRawStory(storyBuffer);
+                    }
+                    flushTimer = null;
+                };
+
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+                    if (!value) continue;
+
+                    pendingChunk += decoder.decode(value, { stream: true });
+                    if (flushTimer === null) {
+                        flushTimer = window.setTimeout(flush, 50);
+                    }
+                }
+
+                pendingChunk += decoder.decode();
+                if (flushTimer !== null) {
+                    window.clearTimeout(flushTimer);
+                }
+                flush();
+
+                if (!storyBuffer.trim()) {
+                    setRawStory("Oups… Aucun contenu reçu.");
+                }
+                return;
+            }
+
             if (!contentType.includes("application/json")) {
                 const text = await res.text();
                 setRawStory(
