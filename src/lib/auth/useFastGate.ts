@@ -33,6 +33,14 @@ const MEMBERSHIP_TTL_MS = 30_000;
 let sessionCache: { session: Session | null; ts: number } | null = null;
 let membershipCache: { userId: string; hasMembership: boolean; ts: number } | null = null;
 
+function sanitizeNextPath(raw: string | null, fallback: string) {
+    if (!raw) return fallback;
+    if (!raw.startsWith('/')) return fallback;
+    if (raw.startsWith('//')) return fallback;
+    if (raw.startsWith('/login') || raw.startsWith('/onboarding')) return fallback;
+    return raw;
+}
+
 async function getCachedSession(supabase: ReturnType<typeof createClient>) {
     const now = Date.now();
     if (sessionCache && now - sessionCache.ts < SESSION_TTL_MS) {
@@ -108,8 +116,9 @@ export function useFastGate(options: FastGateOptions = {}) {
 
             setState({ isChecking: false, session });
 
-            const next = searchParams.get(nextParam);
-            const nextPath = next || `${pathname}${searchParams.toString() ? `?${searchParams}` : ""}`;
+            const rawNext = searchParams.get(nextParam);
+            const currentPath = `${pathname}${searchParams.toString() ? `?${searchParams}` : ""}`;
+            const nextPath = sanitizeNextPath(rawNext, currentPath);
 
             if (!session?.user) {
                 if (requireAuth) {
@@ -119,7 +128,7 @@ export function useFastGate(options: FastGateOptions = {}) {
             }
 
             if (redirectIfAuthed) {
-                router.replace(next || authedRedirectTo);
+                router.replace(nextPath || authedRedirectTo);
                 return;
             }
 

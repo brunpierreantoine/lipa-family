@@ -54,3 +54,4 @@ If you see recurring error patterns or rules, propose a concise update to this a
 - This agent may be invoked by the Agent Orchestrator.
 - If fixes touch auth/session flows, request Solution Architect review.
 - If fixes impact UI/UX, suggest a UX Reviewer pass.
+- Defer performance validation to the Performance Auditor.

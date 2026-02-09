@@ -52,3 +52,4 @@ If performance-related constraints or patterns repeat across tasks, propose an u
 - This agent may be invoked by the Agent Orchestrator.
 - If requirements touch auth/session, request Solution Architect input.
 - If requirements imply schema/RLS changes, request Backend/Data Engineer input.
+- Defer performance validation to the Performance Auditor.

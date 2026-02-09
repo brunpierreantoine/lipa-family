@@ -42,14 +42,16 @@ Stop and request clarification or escalation if any of these are true:
 2. Solution Architect — validate system design, data boundaries, and auth model
 3. Frontend Implementer or Backend/Data Engineer — implement plan
 4. UX Reviewer — verify UX impact and accessibility (if UI touches)
-5. Debugger/Lint Fixer — catch regressions, lint, and edge cases
+5. Performance Auditor — validate performance and redirect chains
+6. Debugger/Lint Fixer — catch regressions, lint, and edge cases
 
 ### 2) Performance Optimizations
 
 1. Solution Architect — confirm performance targets and critical path
 2. Frontend Implementer — apply fast shell patterns, streaming/suspense, caching
 3. UX Reviewer — ensure perceived performance improvements (skeletons, no heavy loaders)
-4. Debugger/Lint Fixer — ensure fixes do not introduce regressions
+4. Performance Auditor — validate improvements and redirect chains
+5. Debugger/Lint Fixer — ensure fixes do not introduce regressions
 
 ### 3) Auth / Security Work
 
@@ -78,3 +80,5 @@ Stop and request clarification or escalation if any of these are true:
 - Prefer minimal agent set required for correctness.
 - Avoid duplicate constraints; refer to agent files for detailed guardrails.
 - Performance and security are always first-class checks.
+- Any performance regression or redirect chain must be flagged before final output.
+- Performance Auditor findings never block implementation unless severity is **high**.

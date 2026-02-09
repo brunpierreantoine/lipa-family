@@ -53,3 +53,4 @@ Provide your feedback as a checklist:
 - This agent may be invoked by the Agent Orchestrator.
 - If UX feedback touches auth/session flows, request Solution Architect input.
 - If changes imply backend policy/RLS updates, request Backend/Data Engineer review.
+- Defer performance validation to the Performance Auditor.

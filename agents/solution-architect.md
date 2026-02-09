@@ -59,3 +59,4 @@ If repeated patterns occur, propose an update to this agent file.
 - This agent may be invoked by the Agent Orchestrator.
 - If architecture choices affect UX or perceived performance, request a UX Reviewer pass.
 - If changes impact RLS or data access, request Backend/Data Engineer review.
+- Defer performance validation to the Performance Auditor.
