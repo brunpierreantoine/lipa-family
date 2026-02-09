@@ -1,48 +1,20 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { createFamily } from "./actions";
-import { createClient } from "@/lib/supabase/client";
+import { useFastGate } from "@/lib/auth/useFastGate";
 
 export default function OnboardingPage() {
-    const supabase = useMemo(() => createClient(), []);
-    const router = useRouter();
     const [step, setStep] = useState(1);
     const [name, setName] = useState("");
     const [profile, setProfile] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    useEffect(() => {
-        let cancelled = false;
-
-        const checkSessionAndMembership = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (cancelled) return;
-
-            if (!session?.user) {
-                router.replace("/login?next=/onboarding");
-                return;
-            }
-
-            const { data: memberships, error } = await supabase
-                .from("memberships")
-                .select("family_id")
-                .limit(1);
-
-            if (cancelled) return;
-
-            if (!error && memberships && memberships.length > 0) {
-                router.replace("/");
-            }
-        };
-
-        checkSessionAndMembership();
-
-        return () => {
-            cancelled = true;
-        };
-    }, [router, supabase]);
+    useFastGate({
+        requireAuth: true,
+        requireMembership: true,
+        membershipRedirectTo: "/",
+    });
 
     const nextStep = () => setStep((s) => s + 1);
     const prevStep = () => setStep((s) => s - 1);

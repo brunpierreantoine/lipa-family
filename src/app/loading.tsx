@@ -1,30 +1,27 @@
-export default function Loading() {
-    return (
-        <main className="container animate-pulse">
-            {/* Header Skeleton */}
-            <div className="headerRow">
-                <div className="headerLeft">
-                    <div className="h-8 w-48 skeleton mb-3" style={{ borderRadius: '12px' }}></div>
-                    <div className="h-4 w-96 max-w-full skeletonSoft"></div>
-                </div>
-                <div className="headerActions flex gap-3">
-                    <div className="h-11 w-32 skeleton" style={{ borderRadius: '14px' }}></div>
-                    <div className="h-11 w-11 skeleton" style={{ borderRadius: '14px' }}></div>
-                    <div className="h-11 w-11 skeleton" style={{ borderRadius: '14px' }}></div>
-                </div>
-            </div>
-
-            {/* Portal Grid Skeleton */}
-            <div className="portalGrid mt-8">
-                {[1, 2].map((i) => (
-                    <div key={i} className="portalCard opacity-60">
-                        <div className="h-14 w-14 skeleton mb-5" style={{ borderRadius: '20px' }}></div>
-                        <div className="h-7 w-40 skeleton mb-3"></div>
-                        <div className="h-4 w-full skeletonSoft mb-1"></div>
-                        <div className="h-4 w-2/3 skeletonSoft"></div>
-                    </div>
-                ))}
-            </div>
-        </main>
-    );
+export default function HomeLoading() {
+  return (
+    <main className="container animate-pulse">
+      <div className="headerRow">
+        <div className="headerLeft">
+          <div className="h-8 w-56 skeleton mb-3"></div>
+          <div className="h-4 w-96 max-w-full skeletonSoft"></div>
+        </div>
+        <div className="headerActions">
+          <div className="h-11 w-28 skeleton" style={{ borderRadius: "14px" }}></div>
+        </div>
+      </div>
+      <div className="portalGrid">
+        <div className="portalCard">
+          <div className="h-10 w-10 skeletonSoft mb-4"></div>
+          <div className="h-5 w-40 skeleton mb-2"></div>
+          <div className="h-4 w-56 skeletonSoft"></div>
+        </div>
+        <div className="portalCard">
+          <div className="h-10 w-10 skeletonSoft mb-4"></div>
+          <div className="h-5 w-32 skeleton mb-2"></div>
+          <div className="h-4 w-52 skeletonSoft"></div>
+        </div>
+      </div>
+    </main>
+  );
 }

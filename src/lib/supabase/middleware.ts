@@ -62,25 +62,16 @@ export async function updateSession(request: NextRequest) {
         }
     )
 
-    // --- Performance Optimization: Skip Session Check List ---
-    // These routes bypass the expensive sequential `getUser()` call in middleware 
-    // to avoid waterfalls and enable faster TTFB/Streaming. 
-    //
-    // IMPORTANT Security Constraints for Skip List:
-    // 1. MUST ONLY include read-only routes or user-scoped data routes.
-    // 2. MUST NOT include admin routes, write/mutation routes, or shared data routes.
-    // 3. These pages must handle unauthenticated states (e.g., redirecting in page logic).
-
-    const isAuthPage = request.nextUrl.pathname.startsWith('/login')
+    // Middleware is responsible ONLY for:
+    // 1) coarse access control (auth vs no-auth)
+    // 2) preserving deep links via ?next=
+    // It must NOT check memberships or perform other Supabase queries.
+    const isAuthRoute =
+        request.nextUrl.pathname.startsWith('/login') ||
+        request.nextUrl.pathname.startsWith('/onboarding')
     const isPublicFile = request.nextUrl.pathname.match(/\.(ico|png|jpg|jpeg|gif|svg)$/)
     const isApi = request.nextUrl.pathname.startsWith('/api')
-    const isRoot = request.nextUrl.pathname === '/'
-    const isStories = request.nextUrl.pathname.startsWith('/stories')
-    const isSettings = request.nextUrl.pathname.startsWith('/settings')
-    const isOnboarding = request.nextUrl.pathname.startsWith('/onboarding')
-    const isLogin = request.nextUrl.pathname.startsWith('/login')
-
-    const skipSessionCheck = isPublicFile || isApi || isRoot || isStories || isSettings || isLogin || isOnboarding
+    const skipSessionCheck = isPublicFile || isApi || isAuthRoute
 
     if (skipSessionCheck) {
         return response
@@ -88,12 +79,11 @@ export async function updateSession(request: NextRequest) {
 
     const { data: { user } } = await supabase.auth.getUser()
 
-    if (!user && !isAuthPage) {
-        return NextResponse.redirect(new URL('/login', request.url))
-    }
-
-    if (user && isAuthPage) {
-        return NextResponse.redirect(new URL('/', request.url))
+    if (!user) {
+        const loginUrl = new URL('/login', request.url)
+        const nextPath = `${request.nextUrl.pathname}${request.nextUrl.search}`
+        loginUrl.searchParams.set('next', nextPath)
+        return NextResponse.redirect(loginUrl)
     }
 
     return response

@@ -24,6 +24,7 @@ Transform vague requests into actionable, testable requirements for the Lipa Fam
 - Ask clarifying questions only as needed; keep it efficient.
 - If the user requests “no questions,” generate a PRD with stated assumptions and a “risks/unknowns” section.
 - **Standards**: Prioritize `globals.css` for shared UI patterns to ensure project-wide consistency.
+- Include performance-first auth flows (fast shell + client gate) and reduced middleware blocking as default NFRs when auth is involved.
 
 ## Output format
 
@@ -45,3 +46,9 @@ Must include:
 ## Evolution Rule
 
 If performance-related constraints or patterns repeat across tasks, propose an update to this agent file.
+
+## Coordination
+
+- This agent may be invoked by the Agent Orchestrator.
+- If requirements touch auth/session, request Solution Architect input.
+- If requirements imply schema/RLS changes, request Backend/Data Engineer input.

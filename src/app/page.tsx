@@ -6,6 +6,11 @@ import { redirect } from "next/navigation";
 
 export default async function Home() {
   const supabase = await createClient();
+  const { data: { session } } = await supabase.auth.getSession();
+
+  if (!session?.user) {
+    redirect("/login?next=/");
+  }
 
   // Fetch memberships directly. Middleware ensures we have a session.
   // RLS ensures we only see our own data.

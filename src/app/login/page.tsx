@@ -1,33 +1,16 @@
 "use client";
 
-import { Suspense, useEffect, useMemo } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { useFastGate } from "@/lib/auth/useFastGate";
 
 function LoginContent() {
     const supabase = useMemo(() => createClient(), []);
-    const router = useRouter();
     const searchParams = useSearchParams();
     const error = searchParams.get("error");
 
-    useEffect(() => {
-        let cancelled = false;
-
-        const redirectIfAuthed = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (cancelled) return;
-            if (session?.user) {
-                const next = searchParams.get("next");
-                router.replace(next || "/");
-            }
-        };
-
-        redirectIfAuthed();
-
-        return () => {
-            cancelled = true;
-        };
-    }, [router, searchParams, supabase]);
+    useFastGate({ requireAuth: false, redirectIfAuthed: true });
 
     const handleGoogleLogin = async () => {
         const next = searchParams.get("next");
