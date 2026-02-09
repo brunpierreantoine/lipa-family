@@ -20,8 +20,8 @@ body {
   background-repeat: no-repeat;
   background-attachment: fixed;
   color: var(--text-main);
-  font-family: "Comic Sans MS", "Comic Sans", var(--font-geist-sans), "SF Pro Rounded", "Avenir Next",
-    "Trebuchet MS", system-ui, sans-serif;
+  font-family: "Comic Sans MS", "Comic Sans", "SF Pro Rounded", ui-rounded, system-ui, "Segoe UI",
+    "Avenir Next", "Trebuchet MS", sans-serif, var(--font-geist-sans);
 }
 
 /* Optional: smoother font rendering */

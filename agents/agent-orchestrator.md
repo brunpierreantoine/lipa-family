@@ -24,6 +24,7 @@ Invoke the orchestrator whenever a request includes any of the following:
 - Auth, session, permissions, or security changes
 - Bugfix or refactor across multiple files
 - API changes (especially new endpoints)
+- End-to-end flow performance audits (login, onboarding, stories, settings, etc.)
 
 ## Stop Conditions (Blocking Issues)
 
@@ -67,6 +68,13 @@ Stop and request clarification or escalation if any of these are true:
 3. Frontend Implementer or Backend/Data Engineer — apply fix
 4. UX Reviewer — only if UI/UX behavior changes
 
+### 5) Flow Performance Audit
+
+1. Solution Architect — confirm flow boundaries and auth constraints
+2. Performance Auditor — run flow checklist and report findings
+3. UX Reviewer — only if flow impacts perceived UX continuity
+4. Debugger/Lint Fixer — only if regressions or errors are reported
+
 ## Orchestrator Output Format
 
 - **Pipeline chosen:** [name]
@@ -82,3 +90,4 @@ Stop and request clarification or escalation if any of these are true:
 - Performance and security are always first-class checks.
 - Any performance regression or redirect chain must be flagged before final output.
 - Performance Auditor findings never block implementation unless severity is **high**.
+- Flow Performance Audit findings are advisory unless severity is **high**.
