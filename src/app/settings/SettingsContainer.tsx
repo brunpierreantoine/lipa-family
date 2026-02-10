@@ -4,46 +4,39 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { DEFAULT_FAMILY_PROFILE } from "@/lib/storyDefaults";
 import { createClient } from "@/lib/supabase/client";
-import { hasCachedField, useIdentityCache, warnIfCachedFieldFallsBack } from "@/lib/identity/useIdentityCache";
+import { getCachedOrNull, useIdentityCache } from "@/lib/identity/useIdentityCache";
 
 export default function SettingsContainer() {
     const supabase = useMemo(() => createClient(), []);
-    const { identity, isReconciling, setAuthoritativeIdentity, reconcileIdentity } = useIdentityCache();
-    const hasCachedFamilyName = hasCachedField(identity, "familyName");
-    const hasCachedFamilyProfile = hasCachedField(identity, "familyProfile");
-    const [profile, setProfile] = useState(hasCachedFamilyProfile ? (identity.familyProfile ?? "") : DEFAULT_FAMILY_PROFILE);
-    const [familyName, setFamilyName] = useState(hasCachedFamilyName ? (identity.familyName ?? "") : "");
+    const { identity, cacheReady, isReconciling, setAuthoritativeIdentity, reconcileIdentity } = useIdentityCache();
+    const [profile, setProfile] = useState(DEFAULT_FAMILY_PROFILE);
+    const [familyName, setFamilyName] = useState("");
     const [nameDirty, setNameDirty] = useState(false);
     const [profileDirty, setProfileDirty] = useState(false);
     const [role, setRole] = useState<"Admin" | "Member" | null>(null);
     const [familyId, setFamilyId] = useState<string | null>(null);
+    const cachedFamilyName = getCachedOrNull(identity, "familyName");
+    const cachedFamilyProfile = getCachedOrNull(identity, "familyProfile");
 
     useEffect(() => {
         if (profileDirty) return;
-        if (hasCachedFamilyProfile) {
-            setProfile(identity.familyProfile ?? "");
+        if (!cacheReady) return;
+        if (cachedFamilyProfile !== null) {
+            setProfile(cachedFamilyProfile);
+            return;
         }
-    }, [identity.familyProfile, profileDirty, hasCachedFamilyProfile]);
+        setProfile(DEFAULT_FAMILY_PROFILE);
+    }, [cacheReady, cachedFamilyProfile, profileDirty]);
 
     useEffect(() => {
         if (nameDirty) return;
-        if (hasCachedFamilyName) {
-            setFamilyName(identity.familyName ?? "");
+        if (!cacheReady) return;
+        if (cachedFamilyName !== null) {
+            setFamilyName(cachedFamilyName);
+            return;
         }
-    }, [identity.familyName, nameDirty, hasCachedFamilyName]);
-
-    useEffect(() => {
-        warnIfCachedFieldFallsBack(identity, "familyName", familyName === "", "SettingsContainer.familyName");
-    }, [identity, familyName]);
-
-    useEffect(() => {
-        warnIfCachedFieldFallsBack(
-            identity,
-            "familyProfile",
-            profile === DEFAULT_FAMILY_PROFILE,
-            "SettingsContainer.familyProfile"
-        );
-    }, [identity, profile]);
+        setFamilyName("");
+    }, [cacheReady, cachedFamilyName, nameDirty]);
 
     useEffect(() => {
         let cancelled = false;

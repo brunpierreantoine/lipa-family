@@ -2,12 +2,11 @@
 
 import { useEffect, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { hasCachedField, useIdentityCache, warnIfCachedFieldFallsBack } from "@/lib/identity/useIdentityCache";
+import { getCachedOrNull, useIdentityCache } from "@/lib/identity/useIdentityCache";
 
 export default function CachedFamilyName() {
   const supabase = useMemo(() => createClient(), []);
-  const { identity, reconcileIdentity } = useIdentityCache();
-  const hasCachedFamilyName = hasCachedField(identity, "familyName");
+  const { identity, cacheReady, reconcileIdentity } = useIdentityCache();
 
   useEffect(() => {
     let cancelled = false;
@@ -40,11 +39,22 @@ export default function CachedFamilyName() {
     };
   }, [reconcileIdentity, supabase]);
 
-  const displayedFamilyName = hasCachedFamilyName ? identity.familyName ?? "" : "Lipa Family";
+  const displayedFamilyName = getCachedOrNull(identity, "familyName");
+  if (!cacheReady || displayedFamilyName === null) {
+    return (
+      <>
+        <div className="h-8 w-56 skeleton mb-3" aria-hidden="true" />
+        <div className="h-4 w-96 max-w-full skeletonSoft" aria-hidden="true" />
+      </>
+    );
+  }
 
-  useEffect(() => {
-    warnIfCachedFieldFallsBack(identity, "familyName", displayedFamilyName === "Lipa Family", "CachedFamilyName");
-  }, [identity, displayedFamilyName]);
-
-  return <h1 className="pageTitle">{displayedFamilyName}</h1>;
+  return (
+    <>
+      <h1 className="pageTitle">{displayedFamilyName}</h1>
+      <div className="subtitle">
+        Bienvenue dans votre espace familial. Retrouvez ici tous vos outils et réglages.
+      </div>
+    </>
+  );
 }

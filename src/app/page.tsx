@@ -56,9 +56,6 @@ export default function Home() {
       <div className="headerRow">
         <div className="headerLeft">
           <CachedFamilyName />
-          <div className="subtitle">
-            Bienvenue dans votre espace familial. Retrouvez ici tous vos outils et réglages.
-          </div>
         </div>
         <Suspense fallback={<ActionsFallback />}>
           <HomeActions />

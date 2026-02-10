@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useLayoutEffect, useMemo, useState } from "react";
 
 export type IdentityCacheValue = {
   familyName?: string;
@@ -23,6 +23,11 @@ function sanitizeIdentity(value: IdentityCacheValue): IdentityCacheValue {
 
 export function hasCachedField(identity: IdentityCacheValue, key: keyof IdentityCacheValue) {
   return Object.prototype.hasOwnProperty.call(identity, key);
+}
+
+export function getCachedOrNull(identity: IdentityCacheValue, key: keyof IdentityCacheValue) {
+  if (!hasCachedField(identity, key)) return null;
+  return identity[key] ?? null;
 }
 
 export function warnIfCachedFieldFallsBack(
@@ -61,48 +66,59 @@ export function writeIdentityCache(value: IdentityCacheValue) {
 
 export function mergeIdentityCache(value: IdentityCacheValue) {
   const current = readIdentityCache() ?? {};
-  const merged = sanitizeIdentity({
-    familyName: value.familyName ?? current.familyName,
-    familyProfile: value.familyProfile ?? current.familyProfile,
-  });
+  const incoming = sanitizeIdentity(value);
+  const merged: IdentityCacheValue = {
+    familyName: hasCachedField(incoming, "familyName") ? incoming.familyName : current.familyName,
+    familyProfile: hasCachedField(incoming, "familyProfile") ? incoming.familyProfile : current.familyProfile,
+  };
   writeIdentityCache(merged);
   return merged;
 }
 
 export function useIdentityCache(initialValue?: IdentityCacheValue) {
   const [identity, setIdentity] = useState<IdentityCacheValue>(() => {
-    const cached = readIdentityCache();
-    return cached ?? sanitizeIdentity(initialValue ?? {});
+    // Initial render must match server markup to avoid hydration mismatch.
+    return sanitizeIdentity(initialValue ?? {});
   });
+  const [cacheReady, setCacheReady] = useState(false);
   const [isReconciling, setIsReconciling] = useState(false);
 
+  const mergeStickyIdentity = useCallback((prev: IdentityCacheValue, incomingRaw: IdentityCacheValue) => {
+    // Cached identity must never regress once rendered.
+    const incoming = sanitizeIdentity(incomingRaw);
+    return {
+      familyName: hasCachedField(incoming, "familyName") ? incoming.familyName : prev.familyName,
+      familyProfile: hasCachedField(incoming, "familyProfile") ? incoming.familyProfile : prev.familyProfile,
+    } satisfies IdentityCacheValue;
+  }, []);
+
+  useLayoutEffect(() => {
+    const cached = readIdentityCache();
+    if (cached) {
+      setIdentity((prev) => mergeStickyIdentity(prev, cached));
+    }
+    setCacheReady(true);
+  }, [mergeStickyIdentity]);
+
   const setAuthoritativeIdentity = useCallback((value: IdentityCacheValue) => {
-    const next = sanitizeIdentity(value);
     setIdentity((prev) => {
-      // Cached identity must never regress during reconciliation or authoritative updates.
-      const merged: IdentityCacheValue = {
-        familyName: hasCachedField(next, "familyName") ? next.familyName : prev.familyName,
-        familyProfile: hasCachedField(next, "familyProfile") ? next.familyProfile : prev.familyProfile,
-      };
+      // Cached identity must never regress during authoritative updates.
+      const merged = mergeStickyIdentity(prev, value);
       writeIdentityCache(merged);
       return merged;
     });
-  }, []);
+  }, [mergeStickyIdentity]);
 
   const reconcileIdentity = useCallback(async (loader: () => Promise<IdentityCacheValue | null>) => {
     setIsReconciling(true);
     try {
       const serverValue = await loader();
       if (!serverValue) return null;
-      const next = sanitizeIdentity(serverValue);
       setIdentity((prev) => {
         // Keep previous identity unless each field is explicitly provided by authoritative data.
         // No intermediate empty identity state is allowed.
         // Cached identity must never regress once rendered.
-        const merged: IdentityCacheValue = {
-          familyName: hasCachedField(next, "familyName") ? next.familyName : prev.familyName,
-          familyProfile: hasCachedField(next, "familyProfile") ? next.familyProfile : prev.familyProfile,
-        };
+        const merged = mergeStickyIdentity(prev, serverValue);
 
         if (prev.familyName === merged.familyName && prev.familyProfile === merged.familyProfile) {
           return prev;
@@ -110,16 +126,17 @@ export function useIdentityCache(initialValue?: IdentityCacheValue) {
         writeIdentityCache(merged);
         return merged;
       });
-      return next;
+      return sanitizeIdentity(serverValue);
     } finally {
       setIsReconciling(false);
     }
-  }, []);
+  }, [mergeStickyIdentity]);
 
   return useMemo(() => ({
     identity,
+    cacheReady,
     isReconciling,
     setAuthoritativeIdentity,
     reconcileIdentity,
-  }), [identity, isReconciling, setAuthoritativeIdentity, reconcileIdentity]);
+  }), [identity, cacheReady, isReconciling, setAuthoritativeIdentity, reconcileIdentity]);
 }
