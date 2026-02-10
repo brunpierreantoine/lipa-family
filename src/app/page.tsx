@@ -32,21 +32,23 @@ const getHomeHeaderData = cache(async () => {
 async function HomeActions() {
   const { allFamilies, activeFamilyId } = await getHomeHeaderData();
   return (
-    <div className="headerActions">
+    <>
       <FamilySwitcher families={allFamilies} activeFamilyId={activeFamilyId} />
       <ThemeToggle />
       <Link href="/settings" className="btn" aria-label="Réglages" title="Réglages">
         ⚙️
       </Link>
-    </div>
+    </>
   );
 }
 
 function ActionsFallback() {
   return (
-    <div className="headerActions">
+    <>
+      <div className="h-11 w-24 skeleton" style={{ borderRadius: "14px" }} />
+      <div className="h-11 w-32 skeleton" style={{ borderRadius: "14px" }} />
       <div className="h-11 w-28 skeleton" style={{ borderRadius: "14px" }} />
-    </div>
+    </>
   );
 }
 
@@ -56,10 +58,15 @@ export default function Home() {
       <div className="headerRow">
         <div className="headerLeft">
           <CachedFamilyName />
+          <div className="subtitle">
+            Bienvenue dans votre espace familial. Retrouvez ici tous vos outils et réglages.
+          </div>
         </div>
-        <Suspense fallback={<ActionsFallback />}>
-          <HomeActions />
-        </Suspense>
+        <div className="headerActions" style={{ minHeight: "44px", minWidth: "220px" }}>
+          <Suspense fallback={<ActionsFallback />}>
+            <HomeActions />
+          </Suspense>
+        </div>
       </div>
 
       <div className="portalGrid">

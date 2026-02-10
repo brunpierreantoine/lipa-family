@@ -40,21 +40,17 @@ export default function CachedFamilyName() {
   }, [reconcileIdentity, supabase]);
 
   const displayedFamilyName = getCachedOrNull(identity, "familyName");
-  if (!cacheReady || displayedFamilyName === null) {
-    return (
-      <>
-        <div className="h-8 w-56 skeleton mb-3" aria-hidden="true" />
-        <div className="h-4 w-96 max-w-full skeletonSoft" aria-hidden="true" />
-      </>
-    );
-  }
+  const hasRenderableName = cacheReady && displayedFamilyName !== null && displayedFamilyName.trim().length > 0;
 
   return (
-    <>
-      <h1 className="pageTitle">{displayedFamilyName}</h1>
-      <div className="subtitle">
-        Bienvenue dans votre espace familial. Retrouvez ici tous vos outils et réglages.
-      </div>
-    </>
+    <h1 className="pageTitle">
+      {hasRenderableName ? (
+        displayedFamilyName
+      ) : (
+        <span aria-hidden="true" style={{ display: "inline-block", minWidth: "10ch", opacity: 0.45 }}>
+          ••••••••••
+        </span>
+      )}
+    </h1>
   );
 }

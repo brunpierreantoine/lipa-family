@@ -63,6 +63,37 @@ You are a Senior Next.js Engineer responsible for implementing approved changes.
 
 - **UI Consistency**: Strictly use primitive classes (`.container`, `.field`) and global tokens. No ad-hoc layout centering in `main`.
 - **Perception**: Optimize for instant feel (skeletons, critical-path fonts). Avoid LCP shifts during hydration.
+- **Premium Layout Stability Rule**:
+  - Layout containers must never visually disappear after initial paint.
+  - Cached identity affects only inline content, never structure.
+  - Placeholders must preserve perceived meaning (no empty gaps).
+  - Skeletons may not replace text once real content has rendered.
+  - Suspense is allowed only for inner content, never containers.
+  - This rule applies to headers, settings, onboarding continuation, future mini-app shells, and any cached identity/preference field.
+- **Layout Stability Rule (Critical)**:
+  - Structural layout containers must NEVER be gated by:
+    - Suspense
+    - cache readiness
+    - async effects
+    - identity reconciliation
+  - Cached identity may only affect LEAF content:
+    - text nodes
+    - icons
+    - inline placeholders
+  - Forbidden:
+    - returning null for layout components
+    - skeletons that replace containers
+    - async gating of headers, rows, or sections
+  - Correct:
+    - `<h1>{value ?? "\u00A0"}</h1>`
+  - Incorrect:
+    - `if (!ready) return <Skeleton />`
+  - This rule applies to:
+    - headers
+    - settings
+    - onboarding continuation
+    - future mini-apps
+    - all cached identity or preferences
 - **Cached Identity Rendering Rule**:
   - Cached identity values are sticky once rendered.
   - Semantic defaults must never appear after cached identity has been displayed.
