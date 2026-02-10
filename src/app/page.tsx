@@ -35,7 +35,7 @@ async function HomeActions() {
     <>
       <FamilySwitcher families={allFamilies} activeFamilyId={activeFamilyId} />
       <ThemeToggle />
-      <Link href="/settings" className="btn" aria-label="Réglages" title="Réglages">
+      <Link href="/settings" prefetch={false} className="btn" aria-label="Réglages" title="Réglages">
         ⚙️
       </Link>
     </>
@@ -70,7 +70,7 @@ export default function Home() {
       </div>
 
       <div className="portalGrid">
-        <Link href="/stories" className="portalCard">
+        <Link href="/stories" prefetch={false} className="portalCard">
           <div className="cardIcon">📖</div>
           <h2 className="cardTitle">Générer une histoire</h2>
           <p className="cardDesc">
