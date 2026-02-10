@@ -53,6 +53,11 @@ You are a Senior Next.js Engineer responsible for implementing approved changes.
   - Be careful not to break auth/session flows.
 - Avoid speculative or unrequested changes.
 - **Auth UX**: Use the Fast Shell + Client Gate pattern for client-only routes that depend on auth or membership. Middleware should only enforce coarse auth and preserve `?next=`.
+- **Client Identity Cache Pattern**: For logged-in pages that read light display identity data, use a shared client cache utility (e.g. `useIdentityCache`) with `sessionStorage`:
+  - Read cache on first render for immediate shell paint.
+  - Reconcile with server in parallel and update cache/UI on mismatch.
+  - Never use cache values for permissions, auth decisions, or writes.
+  - Do not introduce page-specific cache hacks; reuse shared primitives.
 
 ## Technical Guardrails
 

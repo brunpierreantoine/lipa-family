@@ -97,10 +97,32 @@ ${familyProfile || "Not provided (use a general friendly family tone)."}
 
 STORY INSTRUCTIONS:
 - LANGUAGE: The entire story MUST be written in French.
+- PRIORITY: Favor fluency, natural flow, and fast generation over perfection. 
+  Do not over-polish sentences; write smoothly and confidently.
 - TONE: Natural, warm, and lively French. Adapt the complexity and vocabulary based on the ages and details provided in the FAMILY PROFILE. Speak to children as adults-in-the-making: use clear but rich language.
-- IMPORTANT (TENSE): DO NOT use "passé simple" (e.g., avoid "il marcha", "ils virent"). This tense sounds archaic and unnatural for modern bedtime reading. 
-- Use the PRESENT TENSE or "PASSÉ COMPOSÉ" to make the story feel current and easy to read aloud by a parent.
+- VERB TENSE (STRICT): Never use "passé simple" (e.g., "il marcha", "ils virent", "elle répondit").
+  Use PRESENT TENSE by default, or PASSÉ COMPOSÉ when appropriate.
 - Avoid archaic or overly literary phrases. The flow should be smooth and engaging.
+
+FAMILY ROLE NAMING:
+- Parents MUST be referred to as "papa" and "maman".
+- Children are referred to by their first names.
+- Extended family should use natural French terms:
+  - "mamie", "papi", "tata [Prénom]", "tonton [Prénom]", etc.
+- Do not use adult first names for parents unless explicitly requested.
+
+AUTHORIAL VOICE (CHILDREN'S LITERATURE):
+- Write as a modern French children's author.
+- Use short to medium sentences with a natural read-aloud rhythm.
+- Occasional gentle repetition is welcome.
+- Prefer concrete images over abstract explanations.
+- Let lessons emerge naturally without explicit moralizing.
+- The narrator should feel close, warm, and reassuring.
+
+STYLE REFERENCE:
+- Simple, warm language suitable for bedtime reading.
+- Gentle emotions and soft humor.
+- Prefer playful situations and phrasing over explaining that something is funny.
 
 STORY PARAMETERS:
 - Universe: ${universe}
@@ -112,21 +134,21 @@ STORY PARAMETERS:
 STRUCTURE:
 - Provide an engaging Title at the top.
 - Divide the story into clearly labeled chapters (e.g., "Chapitre 1 — ...").
-- Ensure the number of chapters is appropriate for the length:
+- Ensure the number of chapters matches the duration:
   - 3 min -> 2-3 chapters
   - 5 min -> 3-4 chapters
   - 10 min -> 5-6 chapters
-- Conclude with a calm, reassuring bedtime ending to help children fall asleep.
+- End with a calm, reassuring bedtime conclusion.
 
 SAFETY RULES:
 ${STORY_CONFIG.safetyRules}
 
 FORMAT:
 - Plain text only.
-- DO NOT use Markdown symbols like #, ##, **, _, etc.
+- No Markdown symbols.
 - Title on the first line, then a line break.
 - Chapters identified by "Chapitre X — [Title]".
-- Return ONLY the story text (no extra commentary).
+- Return ONLY the story text.
 `.trim();
 
         const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });

@@ -1,29 +1,61 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { DEFAULT_FAMILY_PROFILE } from "@/lib/storyDefaults";
 import { createClient } from "@/lib/supabase/client";
+import { useIdentityCache } from "@/lib/identity/useIdentityCache";
 
-interface SettingsContainerProps {
-    initialFamilyName: string;
-    initialProfile: string;
-    initialRole: "Admin" | "Member";
-    initialFamilyId: string | null;
-}
+export default function SettingsContainer() {
+    const supabase = useMemo(() => createClient(), []);
+    const { identity, isReconciling, setAuthoritativeIdentity, reconcileIdentity } = useIdentityCache();
+    const [profile, setProfile] = useState(identity.familyProfile || DEFAULT_FAMILY_PROFILE);
+    const [familyName, setFamilyName] = useState(identity.familyName || "");
+    const [nameDirty, setNameDirty] = useState(false);
+    const [profileDirty, setProfileDirty] = useState(false);
+    const [role, setRole] = useState<"Admin" | "Member" | null>(null);
+    const [familyId, setFamilyId] = useState<string | null>(null);
 
-export default function SettingsContainer({
-    initialFamilyName,
-    initialProfile,
-    initialRole,
-    initialFamilyId
-}: SettingsContainerProps) {
-    const [profile, setProfile] = useState(initialProfile || DEFAULT_FAMILY_PROFILE);
-    const [familyName, setFamilyName] = useState(initialFamilyName || "");
-    const [role] = useState(initialRole);
-    const [familyId] = useState(initialFamilyId);
+    useEffect(() => {
+        if (profileDirty) return;
+        setProfile(identity.familyProfile || DEFAULT_FAMILY_PROFILE);
+    }, [identity.familyProfile, profileDirty]);
 
-    const supabase = createClient();
+    useEffect(() => {
+        if (nameDirty) return;
+        setFamilyName(identity.familyName || "");
+    }, [identity.familyName, nameDirty]);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        void reconcileIdentity(async () => {
+            const { data: memberships } = await supabase
+                .from("memberships")
+                .select("family_id, role, families(display_name, ai_profile)")
+                .limit(1);
+
+            if (cancelled || !memberships || memberships.length === 0) {
+                setRole("Member");
+                setFamilyId(null);
+                return null;
+            }
+
+            const active = memberships[0];
+            const familyData = Array.isArray(active.families) ? active.families[0] : active.families;
+            setRole(active.role);
+            setFamilyId(active.family_id);
+
+            return {
+                familyName: familyData?.display_name || "",
+                familyProfile: familyData?.ai_profile || DEFAULT_FAMILY_PROFILE,
+            };
+        });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [reconcileIdentity, supabase]);
 
     async function save() {
         if (role !== "Admin" || !familyId) return;
@@ -40,6 +72,11 @@ export default function SettingsContainer({
             alert("Erreur lors de la sauvegarde: " + error.message);
             return;
         }
+
+        setAuthoritativeIdentity({
+            familyName,
+            familyProfile: profile,
+        });
 
         const { triggerConfetti } = await import("@/lib/confetti");
         triggerConfetti();
@@ -71,7 +108,10 @@ export default function SettingsContainer({
                         <input
                             className="field"
                             value={familyName}
-                            onChange={(e) => setFamilyName(e.target.value)}
+                            onChange={(e) => {
+                                setNameDirty(true);
+                                setFamilyName(e.target.value);
+                            }}
                             disabled={role !== "Admin"}
                             placeholder="ex: Famille Lipa"
                         />
@@ -86,14 +126,21 @@ export default function SettingsContainer({
                             className="field textarea"
                             rows={10}
                             value={profile}
-                            onChange={(e) => setProfile(e.target.value)}
+                            onChange={(e) => {
+                                setProfileDirty(true);
+                                setProfile(e.target.value);
+                            }}
                             disabled={role !== "Admin"}
                             placeholder={DEFAULT_FAMILY_PROFILE}
                         />
                     </label>
 
                     <div className="fullRow">
-                        {role === "Admin" ? (
+                        {role === null || isReconciling ? (
+                            <div className="helper" style={{ textAlign: "center" }}>
+                                Chargement des réglages...
+                            </div>
+                        ) : role === "Admin" ? (
                             <button className="btn btnPrimary" onClick={save} style={{ width: "100%" }}>
                                 Enregistrer les changements
                             </button>

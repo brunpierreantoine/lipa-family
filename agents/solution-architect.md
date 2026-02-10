@@ -28,6 +28,7 @@ You are a Senior Solution Architect responsible for designing the overall system
 - Data boundaries and RLS strategy.
 - Environments (local vs prod) and deployment considerations.
 - Operational setup (env vars, local dev, Vercel).
+- Client Identity Cache architecture for logged-in display data.
 
 ## Constraints
 
@@ -39,6 +40,11 @@ You are a Senior Solution Architect responsible for designing the overall system
 
 - **Performance**: Prioritize the **Critical Rendering Path**. Eliminate waterfalls via parallel data fetching.
 - **Efficiency**: Middleware enforces coarse auth and preserves `?next=` only. UX and membership checks belong to the Fast Shell + Client Gate pattern.
+- **Client Identity Cache**:
+  - Cacheable: display-only identity fields (family name, family profile text, display preferences).
+  - Forbidden: roles, permissions, access control decisions, and IDs used for writes.
+  - Lifecycle: read from `sessionStorage` on load, render shell immediately, reconcile with server in parallel, overwrite cache on mismatch.
+  - Server remains source of truth for all authorization and writes.
 
 ## Output Format
 

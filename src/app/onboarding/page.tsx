@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createFamily } from "./actions";
 import { useFastGate } from "@/lib/auth/useFastGate";
+import { mergeIdentityCache } from "@/lib/identity/useIdentityCache";
 
 export default function OnboardingPage() {
     const [step, setStep] = useState(1);
@@ -21,6 +22,10 @@ export default function OnboardingPage() {
 
     const handleSubmit = async (formData: FormData) => {
         setIsSubmitting(true);
+        mergeIdentityCache({
+            familyName: name.trim(),
+            familyProfile: profile.trim(),
+        });
         const { triggerConfetti } = await import("@/lib/confetti");
         triggerConfetti();
         // Short delay to let the user see the confetti

@@ -2,6 +2,7 @@ import { Suspense, cache } from "react";
 import Link from "next/link";
 import ThemeToggle from "@/app/components/ThemeToggle";
 import FamilySwitcher from "@/app/components/FamilySwitcher";
+import CachedFamilyName from "@/app/components/CachedFamilyName";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -20,19 +21,13 @@ const getHomeHeaderData = cache(async () => {
 
   const activeFamily = memberships[0];
   const familyData = Array.isArray(activeFamily.families) ? activeFamily.families[0] : activeFamily.families;
-  const familyName = familyData?.display_name || "Lipa Family";
 
   const allFamilies = memberships
     .map(m => Array.isArray(m.families) ? m.families[0] : m.families)
     .filter(Boolean) as FamilyInfo[];
 
-  return { familyName, allFamilies, activeFamilyId: familyData?.id };
+  return { allFamilies, activeFamilyId: familyData?.id };
 });
-
-async function HomeTitle() {
-  const { familyName } = await getHomeHeaderData();
-  return <h1 className="pageTitle">{familyName}</h1>;
-}
 
 async function HomeActions() {
   const { allFamilies, activeFamilyId } = await getHomeHeaderData();
@@ -44,12 +39,6 @@ async function HomeActions() {
         ⚙️
       </Link>
     </div>
-  );
-}
-
-function TitleFallback() {
-  return (
-    <div className="h-8 w-56 skeleton mb-3" />
   );
 }
 
@@ -66,9 +55,7 @@ export default function Home() {
     <main className="container">
       <div className="headerRow">
         <div className="headerLeft">
-          <Suspense fallback={<TitleFallback />}>
-            <HomeTitle />
-          </Suspense>
+          <CachedFamilyName />
           <div className="subtitle">
             Bienvenue dans votre espace familial. Retrouvez ici tous vos outils et réglages.
           </div>
