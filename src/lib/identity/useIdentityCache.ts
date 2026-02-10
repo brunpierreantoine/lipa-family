@@ -9,11 +9,32 @@ export type IdentityCacheValue = {
 
 const IDENTITY_CACHE_KEY = "lipa.identity.v1";
 
+// Future extension point:
+// - display preferences
+// - UI-only onboarding continuation state
+// Keep persisted fields display-only. Never store auth, permissions, or write-authority IDs.
+
 function sanitizeIdentity(value: IdentityCacheValue): IdentityCacheValue {
   const next: IdentityCacheValue = {};
   if (typeof value.familyName === "string") next.familyName = value.familyName;
   if (typeof value.familyProfile === "string") next.familyProfile = value.familyProfile;
   return next;
+}
+
+export function hasCachedField(identity: IdentityCacheValue, key: keyof IdentityCacheValue) {
+  return Object.prototype.hasOwnProperty.call(identity, key);
+}
+
+export function warnIfCachedFieldFallsBack(
+  identity: IdentityCacheValue,
+  key: keyof IdentityCacheValue,
+  isUsingDefault: boolean,
+  context: string
+) {
+  if (process.env.NODE_ENV !== "development") return;
+  if (!hasCachedField(identity, key)) return;
+  if (!isUsingDefault) return;
+  console.warn(`[identity-cache] Cached field "${key}" regressed to default in ${context}.`);
 }
 
 function hasWindow() {
@@ -57,8 +78,15 @@ export function useIdentityCache(initialValue?: IdentityCacheValue) {
 
   const setAuthoritativeIdentity = useCallback((value: IdentityCacheValue) => {
     const next = sanitizeIdentity(value);
-    setIdentity(next);
-    writeIdentityCache(next);
+    setIdentity((prev) => {
+      // Cached identity must never regress during reconciliation or authoritative updates.
+      const merged: IdentityCacheValue = {
+        familyName: hasCachedField(next, "familyName") ? next.familyName : prev.familyName,
+        familyProfile: hasCachedField(next, "familyProfile") ? next.familyProfile : prev.familyProfile,
+      };
+      writeIdentityCache(merged);
+      return merged;
+    });
   }, []);
 
   const reconcileIdentity = useCallback(async (loader: () => Promise<IdentityCacheValue | null>) => {
@@ -68,11 +96,19 @@ export function useIdentityCache(initialValue?: IdentityCacheValue) {
       if (!serverValue) return null;
       const next = sanitizeIdentity(serverValue);
       setIdentity((prev) => {
-        if (prev.familyName === next.familyName && prev.familyProfile === next.familyProfile) {
+        // Keep previous identity unless each field is explicitly provided by authoritative data.
+        // No intermediate empty identity state is allowed.
+        // Cached identity must never regress once rendered.
+        const merged: IdentityCacheValue = {
+          familyName: hasCachedField(next, "familyName") ? next.familyName : prev.familyName,
+          familyProfile: hasCachedField(next, "familyProfile") ? next.familyProfile : prev.familyProfile,
+        };
+
+        if (prev.familyName === merged.familyName && prev.familyProfile === merged.familyProfile) {
           return prev;
         }
-        writeIdentityCache(next);
-        return next;
+        writeIdentityCache(merged);
+        return merged;
       });
       return next;
     } finally {

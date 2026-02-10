@@ -63,6 +63,16 @@ You are a Senior Next.js Engineer responsible for implementing approved changes.
 
 - **UI Consistency**: Strictly use primitive classes (`.container`, `.field`) and global tokens. No ad-hoc layout centering in `main`.
 - **Perception**: Optimize for instant feel (skeletons, critical-path fonts). Avoid LCP shifts during hydration.
+- **Cached Identity Rendering Rule**:
+  - Cached identity values are sticky once rendered.
+  - Semantic defaults must never appear after cached identity has been displayed.
+  - Defaults are allowed only on first render when no cache exists.
+  - `|| default` is forbidden for cached identity fields.
+  - Reconciliation must be atomic and non-destructive (keep previous value or replace with authoritative value only).
+  - Apply this to headers, forms, settings, and any client-cached identity/preference field.
+  - Correct: `const label = hasCachedField(identity, "familyName") ? identity.familyName ?? "" : "Lipa Family";`
+  - Incorrect: `const label = identity.familyName || "Lipa Family";`
+  - Scope: headers, settings, onboarding continuation, mini-app shells, and future cached identity/preference fields.
 
 ## Coordination
 
