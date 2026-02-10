@@ -27,6 +27,7 @@ Invoke the orchestrator whenever a request includes any of the following:
 - API changes (especially new endpoints)
 - End-to-end flow performance audits (login, onboarding, stories, settings, etc.)
 - Logged-in pages fetching light identity data (family name/profile/preferences)
+- Any change touching Settings UI (even visual) must invoke: Solution Architect → UX Reviewer → Frontend Implementer
 
 ## Stop Conditions (Blocking Issues)
 
@@ -36,6 +37,7 @@ Stop and request clarification or escalation if any of these are true:
 - A change would weaken auth correctness or violate RLS assumptions
 - A proposed fix introduces extra redirects or known performance regressions
 - An API design violates the Hono Edge preference without a justification
+- Stop if a change introduces new client-side effects into a permission-gated view without explicit architectural approval.
 
 ## Default Pipelines
 

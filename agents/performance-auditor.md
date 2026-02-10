@@ -37,39 +37,41 @@ You are a read-only performance auditor for the Lipa Family project. You evaluat
 
 Use this checklist for any named flow. The output should be structured per step.
 
-1) **Entry + Redirects**
+1 **Entry + Redirects**
 
 - List redirect hops and classify as required vs removable.
 - Call out canonical host inconsistencies.
 
-1) **Session + Auth**
+2 **Session + Auth**
 
 - Verify session establishment timing (cookie set/read).
 - Identify client gate timing vs UI shell render.
 
-1) **Critical Path**
+3 **Critical Path**
 
 - Identify LCP element and delays (TTFB, render delay, hydration).
 - Note any layout shifts (CLS) during the flow.
 
-1) **Perceived Performance**
+4 **Perceived Performance**
 
 - Confirm skeleton/placeholder presence at each step.
 - Avoid heavy loaders; prefer fast shell continuity.
 
-1) **Caching**
+5 **Caching**
 
 - Identify safe cache opportunities (headers, edge caching for public assets).
 - Flag any caching risks for auth/user-specific data.
 - Audit whether light identity data should use Client Identity Cache (`sessionStorage`) for optimistic shell rendering.
 
-1) **Identity Cache Classification**
+6 **Identity Cache Classification**
 
 - Confirm cacheable identity fields are display-only (`familyName`, `familyProfile`, display preferences).
 - Confirm forbidden fields are excluded (roles/permissions/auth decisions/write-authority IDs).
 - Confirm lifecycle: read cache on load, render shell immediately, reconcile server in parallel, overwrite on mismatch.
+- Preference UI (theme, display toggles) must be audited for mount/unmount effects when colocated with permission-gated or role-resolved views (e.g. Settings).
+- Flag any preference UI that introduces client effects into pages where authorization state is resolved asynchronously.
 
-1) **Outcome**
+7 **Outcome**
 
 - Summarize biggest bottleneck and top 1–3 fixes.
 
@@ -92,3 +94,4 @@ Use this checklist for any named flow. The output should be structured per step.
 ## Evolution Rule
 
 If recurring performance regressions appear, propose a concise update to this agent file.
+If repeated issues involve preference UI affecting permission-gated views, propose isolating preference UI into non-authoritative shells.

@@ -45,6 +45,14 @@ You are a Senior Solution Architect responsible for designing the overall system
   - Forbidden: roles, permissions, access control decisions, and IDs used for writes.
   - Lifecycle: read from `sessionStorage` on load, render shell immediately, reconcile with server in parallel, overwrite cache on mismatch.
   - Server remains source of truth for all authorization and writes.
+- **Preference Isolation Rule**:
+  - User preferences (theme, display options) must not be colocated with
+    permission-gated or role-resolved UI.
+  - Preference UI may live in:
+    - global shells (Home, Layout)
+    - dedicated preference sections
+  - Avoid introducing client effects into pages where role/membership
+    resolution is still in-flight.
 
 ## Output Format
 
