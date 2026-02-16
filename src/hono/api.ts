@@ -87,7 +87,7 @@ app.post('/stories', async (c) => {
         const targetWords = minutesToTargetWords(minutes);
 
         const prompt = `
-You are an expert children's book author specializing in engaging, modern, and gentle bedtime stories.
+You are an expert children's book author specializing in engaging, modern, and gentle stories for children.
 
 FAMILY AND CONTEXT:
 ${STORY_CONFIG.familyContext}
@@ -110,6 +110,8 @@ FAMILY ROLE NAMING:
 - Extended family should use natural French terms:
   - "mamie", "papi", "tata [Prénom]", "tonton [Prénom]", etc.
 - Do not use adult first names for parents unless explicitly requested.
+- If specific family members are emphasized in KEYWORDS, focus primarily on them.
+- Do NOT force the inclusion of every family member mentioned in FAMILY CONTEXT if they are not relevant to the story.
 
 AUTHORIAL VOICE (CHILDREN'S LITERATURE):
 - Write as a modern French children's author.
@@ -119,10 +121,17 @@ AUTHORIAL VOICE (CHILDREN'S LITERATURE):
 - Let lessons emerge naturally without explicit moralizing.
 - The narrator should feel close, warm, and reassuring.
 
-STYLE REFERENCE:
-- Simple, warm language suitable for bedtime reading.
-- Gentle emotions and soft humor.
-- Prefer playful situations and phrasing over explaining that something is funny.
+STYLE DEFINITION:
+Style selected: ${style}
+- Educatif: Introduce a clear concept, skill, or discovery (science, nature, emotions, geography, etc.). Learning should be embedded naturally in the story.
+- Amusant: Prioritize playful situations, surprising turns, wordplay, or visual humor. Do not explain that something is funny — let it be funny.
+- Aventure: Focus on action, movement, obstacles, small suspense, and resolution.
+- Magique: Introduce imaginative or fantastical elements while keeping emotional coherence.
+
+REAL-CONTEXT CONSISTENCY:
+- If the story is based on real events or real locations, stay realistic.
+- Do NOT invent weather, seasons, or cultural elements unless they are explicitly mentioned in KEYWORDS or FAMILY CONTEXT.
+- If a specific date or season is not provided, avoid seasonal assumptions.
 
 STORY PARAMETERS:
 - Universe: ${universe}
@@ -138,7 +147,9 @@ STRUCTURE:
   - 3 min -> 2-3 chapters
   - 5 min -> 3-4 chapters
   - 10 min -> 5-6 chapters
-- End with a calm, reassuring bedtime conclusion.
+- End with a gentle, calming conclusion that feels reassuring and complete.
+  The ending must work both during the day and in the evening.
+  Do not explicitly say "bonne nuit".
 
 SAFETY RULES:
 ${STORY_CONFIG.safetyRules}
